@@ -10,8 +10,16 @@ import java.io.File;
 
 public class Tokenizer{  public static void main(String args[]) throws ParseException  {
 
+	//test(args);
+	run(args);
+      }
+
+  public static void test(String[] args) {
+
 	args = new String[1];
-    args[0] = "./Input/test.txt";    	try {
+    args[0] = "./Input/test.txt";
+    
+	try {
 
 		Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(args[0])));
 		Token t;
@@ -26,33 +34,29 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 	} catch(IOException ex) {
 		System.exit(1);
 	}
-      }
 
-  public void multi(String input) {
+  }
+
+  public static void run(String[] args) {
 
 	String[] spl;
 	String filename;
 
 	try {
 
-		File inDir = new File(input);
+		File inDir = new File(args[0]);
 	  	File[] files = inDir.listFiles();
-	  	
 
 	  	for(File f : files) {
 
-			//fileName = f.getName().toString();
-            //spl = fileName.split("\\.");
-
             BufferedWriter bw = new BufferedWriter(new FileWriter(f.getName()+".out"));
-
 			Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(f.getName())));
 			Token t;
 
 			do {
 
 				t = parser.getNextToken();
-				bw.write(t.image);
+				bw.write(t.image+"\n");
 
 			} while(t.kind != TokenizerConstants.EOF);
 
