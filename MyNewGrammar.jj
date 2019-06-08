@@ -1,6 +1,6 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = true;}PARSER_BEGIN(Tokenizer)
+ */options{  static = false;}PARSER_BEGIN(Tokenizer)
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -10,15 +10,15 @@ import java.io.File;
 
 public class Tokenizer{  public static void main(String args[]) throws ParseException  {
 
-	//test(args);
-	run(args);
+    args = new String[1];
+    args[0] = "./input/test.txt";
+
+	test(args);
+	//run(args);
       }
 
   public static void test(String[] args) {
 
-	args = new String[1];
-    args[0] = "./Input/test.txt";
-    
 	try {
 
 		Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(args[0])));
@@ -50,13 +50,14 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 	  	for(File f : files) {
 
             BufferedWriter bw = new BufferedWriter(new FileWriter(f.getName()+".out"));
-			Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(f.getName())));
+			Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(f.getPath())));
 			Token t;
 
 			do {
 
 				t = parser.getNextToken();
-				bw.write(t.image+"\n");
+				bw.write(String.format("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]));
+				//bw.write(t.image.toLowerCase()+"\n");
 
 			} while(t.kind != TokenizerConstants.EOF);
 
@@ -69,7 +70,8 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 	}
 
   }
-  }PARSER_END(Tokenizer)SKIP :{  " "| "\r"| "\t"| "\n"}
+  }PARSER_END(Tokenizer)SKIP :{  < SPACE : ("\\s"|"\t")+ >| < NEWLINE : ("\r"|"\n") >
+| < MULTPERIOD : ["."](".")+ >}
 // < HTTP : ( (["a"-"z"])+("://"|"."|"/")? )+  >
 // < NAPHONE : ( (["0"-"9"]){3}("-"|".") ){1,2}(["0"-"9"]){4} > // Need to add more stuff
 
@@ -81,9 +83,10 @@ TOKEN :
     (["0"-"9"]){3,4}["-"," ","."](["0"-"9"]){4} // Need to account for parens
     >
 //|   < IP : (  (["1"-"2"]){0,1}(["1"-"5"]){2} "."  )+ > // Need to fix this
-| 	< HTTP : ( (["a"-"z"])+("."|"://")? )+ ( (["/",".","&","-","?","_","="]){1,2}(["a"-"z","A"-"Z","0"-"9"])+ )+ >
+| 	< HTTP : ( (["a"-"z"])+("."|"://")? )+ ( (["/",".","&","-","?","_","=",";",":","%"]){1,2}(["a"-"z","A"-"Z","0"-"9"])+ )+ >
+|   < OPENTAG : ["<"](" ")?(["a"-"z","A"-"Z"," "])+(" ")?[">"] >
 |   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
-|   < CONTWORD : (["a"-"z","A"-"Z"])+"'"(["a"-"z","A"-"Z"]){1} >
+|   < CONTWORD : (["a"-"z","A"-"Z"])+"'"(["a"-"z","A"-"Z"]){1,2} >
 | 	< WORD : (["a"-"z","A"-"Z"])+ >
 | 	< PRICE : ["$","£","¥"]( (["0"-"9"]){1,3}(",")? )+ ("."(["0"-"9"])+)? > // Need to look at international options
 | 	< BIGNUMB : ( (["0"-"9"]){1,3}"," )+ (["0"-"9"]){1,3} ("."(["0"-"9"])+)? >
