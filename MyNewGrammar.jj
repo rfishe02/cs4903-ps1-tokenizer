@@ -73,8 +73,9 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
   }PARSER_END(Tokenizer)
 
 // < HTTP : ( (["a"-"z"])+("://"|"."|"/")? )+  >
-// < NAPHONE : ( (["0"-"9"]){3}("-"|".") ){1,2}(["0"-"9"]){4} > // Need to add more stuffSKIP :{  < SPACE : ("\\s"|"\t")+ >| < NEWLINE : ("\r"|"\n") >
-| < MULTPERIOD : ["."](".")+ >}
+// < NAPHONE : ( (["0"-"9"]){3}("-"|".") ){1,2}(["0"-"9"]){4} > // Need to add more stuffSKIP :{  < SPACE : (" "|"\t")+ >| < NEWLINE : ("\r"|"\n") >
+| < MULTPERIOD : ["."](".")+ >
+| < MULTEXCLAIM : ["!"]("!")+ >}
 TOKEN :
 {
 	< PHONE34 :
@@ -89,8 +90,9 @@ TOKEN :
 | 	< HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
 | 	< HTTPJNK : "/" (["a"-"z","A"-"Z","0"-"9",".","&","-","?","_","=",";",":","%"])+ >
 |   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
-|   < OPENTAG : ["<"](" ")?((["a"-"z","0"-"9"," ","=","\""])+(" ")?)+("\""|">")? > // Fix this
-|   < CLOSETAG : "/"(" ")?["a"-"z"] >
+|   < OPENTAG : ["<"] (" ")? (["a"-"z"])+ (" ")? >
+| 	< HTMLATTR :  (["a"-"z"])+ (" ")? "=" (" ")? "\"" >
+|   < CLOSETAG : "/" (" ")? ["a"-"z"] (" ")? ">" >
 }
 
 TOKEN :
