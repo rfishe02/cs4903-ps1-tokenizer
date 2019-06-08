@@ -1,0 +1,194 @@
+
+// Four; three 
+   (0xxx) xxx-xxxx
+   (0XXX) YYY YYYY
+     09xx xxx xxxx
+     01x1-AAA BBBB
+     01xx AAA BBBB
+     0AAA BBB BBBB
+     09xx xxx xxxx
+ 82-(0)XX-XXX-XXXX
+ 82 (0)1X-XXX-XXXX
++63 (XXX) YYY ZZZZ 
++63 (XXX) YYY ZZZZ
+(011) 154-123-4567
+      90x-NNN-NNNN
+   82 0XX-XXX-XXXX
+  +98 9xx xxx xxxx
+  +82 0XX-XXX-XXXX
+      01X-XXX-XXXX
+  0 (XXX) YYY ZZZZ
+    1-NPA-NXX-XXXX
+      NNN ABC XXXX
+	  0XX-XXX-XXXX
+    (0AA) NXX-XXXX  
+	(02M) BBB-BBBB
+      021 BBB BBBB
+	 (0A) BBB-BBBB
+   +27 AA XXX XXXX
+   +64-MM-BBB-BBBB
+       PA NXX-XXXX
+       01 BBB BBBB
+	+64-A-BBB-BBBB
+	    9-XXX XXXX
+  	      NXX-XXXX
+
+// Four; four
+        9XXXX XXXX
+82-(0)XX-XXXX-XXXX
+82-(0)1X-XXXX-XXXX 
+  (0XXX) YYYY YYYY
+ +86 755 XXXX YYYY
+ +82-0XX-XXXX-XXXX
+ +82-01X-XXXX-XXXX
+    +506 2222-2222
+   (0xx) xxxx xxxx
+   (011) xxxx-xxxx
+     01X-XXXX-XXXX
+     050-XXXX-XXXX
+     1WX YYYY ZZZZ
+     02x AAAA AAAA
+	 021 xxxx xxxx
+    (NN) ABCD-XXXX
+	(02) XXXX YYYY
+(044) NN ABCD XXXX
+ (01) NN ABCD XXXX
+ (01 NN) ABCD XXXX
+  +98 21 xxxx xxxx
+      NN ABCD XXXX
+	  0A BBBB BBBB
+   +61 A BBBB BBBB
+     +65-XXXX-YYYY
+         AAAA AAAA
+         ABCD XXXX
+         0AAA-BBBB	
+
+// Two; three two
+     0BBB AAA AA AA
+     02BB AAA AA AA
+ 00CC AAA-XXX XX XX
+(044) NNN ABC XX XX
+ (01 NNN) ABC XX XX
+  +90 BBB AAA AA AA
+  +CC AAA-XXX XX XX
+ (01) NNN ABC XX XX
+ +7 (AAA) BBB-BB-BB
+   +7 AAA BBB BB BB
+    8 AAA BBB-BB-BB
+    (NNN) ABC-XX-XX
+      AAA-AAA-AA-AA
+      0AA BBB BB BB
+   +41 AA BBB BB BB
+	 (AA) BBB-BB-BB
+	   AA-BBB-BB-BB
+       AB CCC DD DD
+       0A BBB BB BB
+      07A-XXX XX XX
+      0AA-XXX XX XX
+       0A-XXX XX XX
+          BBB-BB-BB
+   	      ABC XX XX	
+		 
+// Three; three three
+   099xx xxx xxx
+    04XX XXX XXX
+   (0XX) XXX-XXX
+ +61 4XX XXX XXX
+     AAA AAA AAA
+     061 BBB BBB
+     AAA-AAA-AAA
+     ABB CCC CCC
+      AA AAA AAA
+         118 AAA
+
+// Two; two two        
+8 (AAAA) BB-BB-BB
+  8 AAAA BB-BB-BB
+    0AAA-XX XX XX
+  (AAAA) BB-BB-BB
+    07AA-XX XX XX
+    04AA BB BB BB
+     0AA-XX XX XX
+     0AA BB BB BB
+	  0A-XX XX XX
+	     BB-BB-BB
+
+// Six; four 
+     01xxx AAAAAA
++49 (AAAA) BBBBBB
+  +49 AAAA BBBBBB
+  +49 AAAA BBBBBB
+  +30 AAAB BBBBBB
+      0500 AAAAAA
+      AAAB BBBBBB
+      0AAA-BBBBBB
+	  (021)4BBBBB
+
+// Eight 
+  (021)02BBBBBB
+  (020)41BBBBBB
++92 xx yyyyyyyy
++31 AA BBBBBBBB
+    03-XXXXYYYY
+    06-CBBBBBBB
+ +31 6 CBBBBBBB
+       AAAAAAAA
+	   XXXXYYYY
+
+// Five
++91-AAAAA BBBBB
+  01xx xx AAAAA
+    01xxx AAAAA
+    AAAAA-BBBBB
+     0404 BBBBB
+     0900 xxxxx
+      098 BBBBB
+	   
+// Seven 
+   0AAA-BBBBBBB
++30 AAB BBBBBBB
+    0AA-BBBBBBB
+    AAB BBBBBBB
+	AAA-BBBBBBB
+	    BBBBBBB
+
+// Five
+  0AAAA BBBBBB-XX
+  0AAAA/BBBBBB-XX
+(0AAAA) BBBBBB
+  0AAAA-BBBBBB
+  0AAAA BBBBBB
+  07AAA BBBBBB
+	   
+// Three; four three
+0800 BBB BBB
+0900 BBB BBB
+04AA BBB BBB
+AAAA-AAA-AAA
+
+// Four ; two 
+(0xxxx) xx-xxxx
+   01xx xx AAAA
+   0120-XX-XXXX
+    088-XX YYYY
+
+// Two; two two two 
+   0A BB BB BB BB
++33 A BB BB BB BB
+    A BB BB BB BB
+      AA AA AA AA
+
+// Two; three
+  0AAA-XXX XX
+0A-XXX XXX XX
+   0AA-XXX XX
+   
+// Two; one two
+        B-BB-BB
+(AAAAA) B-BB-BB
+
+// Three; three two
+AAA AA AAA	
+	   
+// Twelve   
+0755XXXXYYYY
