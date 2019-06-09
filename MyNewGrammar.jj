@@ -12,8 +12,8 @@ import java.io.File;
 
 public class Tokenizer{  public static void main(String args[]) throws ParseException  {
 
-	test(args);
-	//run(args);
+	//test(args);
+	run(args);
       }
 
   public static void test(String[] args) {
