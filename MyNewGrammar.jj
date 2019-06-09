@@ -17,8 +17,11 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
   public static void test(String[] args) {
 
 	args = new String[2];
-    args[0] = "./input/Andrew L. Mackey.html";
+    args[0] = "./input/test.txt";
     args[1] = "./output";
+
+	//test.txt
+    //Andrew L. Mackey.html
 
 	try {
 
@@ -93,7 +96,7 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 TOKEN :
 {
 	< PHONE34 :
-    ( ( ("+")?(["0"-"9"]){1,2}["-"," ","."] )? (["0"-"9"]){1,4}["-"," ","."] )?
+    ( ( ("+")?(["0"-"9"]){1,2}["-"," ","."])? (("(")?["0"-"9"]){1,4}(")")?["-"," ","."])?
     (["0"-"9"]){3,4}["-"," ","."](["0"-"9"]){4} // Need to account for parens
     >
 }
@@ -116,7 +119,7 @@ SKIP :
 }
 
 < IN_SP_ATTR > SKIP : {
-	< ENDSPATTR : "\"" > : DEFAULT
+	< ENDSPATTR : ("\""|">") > : DEFAULT
 |   < SPATTRMISC : ~[] >
 }
 
@@ -124,7 +127,7 @@ TOKEN :
 {	
     < HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
 | 	< HTTPJNK : "/" (["a"-"z","A"-"Z","0"-"9",".","&","-","?","_","=",";",":","%"])+ >
-|   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
+|   < EMAIL : (["a"-"z","0"-"9","_",".","+","-"])+ "@" ((["a"-"z"])+(".")?)+ > // Can't start or end with certain things?
 //|   < IP : (  (["1"-"2"]){0,1}(["1"-"5"]){2} "."  )+ > // Need to fix this
 }
 
