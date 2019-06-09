@@ -44,7 +44,7 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 
 	try {
 
-	  	File outDir = new File("./output");
+	  	File outDir = new File(args[1]);
 
 	  	if(!outDir.exists()) {
 			outDir.mkdir();
@@ -55,7 +55,7 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 
 	  	for(File f : files) {
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter("./output/"+f.getName()+".out"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(args[1]+"/"+f.getName()+".out"));
 			Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(f.getPath())));
 			Token t;
 
