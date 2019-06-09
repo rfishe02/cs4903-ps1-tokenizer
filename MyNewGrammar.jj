@@ -62,8 +62,10 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 			do {
 
 				t = parser.getNextToken();
-				bw.write(String.format("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]));
-				//bw.write(t.image.toLowerCase()+"\n");
+				if(!Tokenizer.tokenImage[t.kind].equals("<MISC>")) {
+					//bw.write(String.format("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]));
+					bw.write(t.image.toLowerCase()+"\n");
+				}
 
 			} while(t.kind != TokenizerConstants.EOF);
 
