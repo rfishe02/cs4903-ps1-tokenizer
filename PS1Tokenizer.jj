@@ -12,8 +12,8 @@ import java.io.File;
 
 public class UATokenizer{  public static void main(String args[]) throws ParseException  {
 
-	test(args);
-	//run(args);
+	//test(args);
+	run(args);
       } 
 
   public static void test(String[] args) {
