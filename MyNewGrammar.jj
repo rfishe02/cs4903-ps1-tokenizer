@@ -13,11 +13,8 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
     args = new String[1];
     args[0] = "./input/Andrew L. Mackey.html";
 
-    //Andrew L. Mackey.html
-    // test.txt
-
-	test(args);
-	//run(args);
+	//test(args);
+	run(args);
       }
 
   public static void test(String[] args) {
@@ -47,12 +44,18 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 
 	try {
 
+	  	File outDir = new File("./output");
+
+	  	if(!outDir.exists()) {
+			outDir.mkdir();
+	  	}
+
 		File inDir = new File(args[0]);
 	  	File[] files = inDir.listFiles();
 
 	  	for(File f : files) {
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(f.getName()+".out"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter("./output/"+f.getName()+".out"));
 			Tokenizer parser = new Tokenizer(new BufferedReader(new FileReader(f.getPath())));
 			Token t;
 
