@@ -10,14 +10,15 @@ import java.io.File;
 
 public class Tokenizer{  public static void main(String args[]) throws ParseException  {
 
-	//test(args);
-	run(args);
+	test(args);
+	//run(args);
       }
 
   public static void test(String[] args) {
 
-	args = new String[1];
+	args = new String[2];
     args[0] = "./input/Andrew L. Mackey.html";
+    args[1] = "./output";
 
 	try {
 
@@ -27,7 +28,12 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 		do {
 
 			t = parser.getNextToken();
-			System.out.printf("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]);
+
+			if(!Tokenizer.tokenImage[t.kind].equals("<MISC>")) {
+				System.out.printf("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]);
+			} else {
+				//System.out.printf("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]);
+			}
 
 		} while(t.kind != TokenizerConstants.EOF);
 
@@ -62,8 +68,8 @@ public class Tokenizer{  public static void main(String args[]) throws ParseEx
 			do {
 
 				t = parser.getNextToken();
+
 				if(!Tokenizer.tokenImage[t.kind].equals("<MISC>")) {
-					//bw.write(String.format("%20s %20s\n",t.image,Tokenizer.tokenImage[t.kind]));
 					bw.write(t.image.toLowerCase()+"\n");
 				}
 
@@ -92,17 +98,34 @@ TOKEN :
     >
 }
 
-TOKEN :
+SKIP :
 {
-    < OPENTAG : ["<"] (" ")* (["a"-"z","0"-"9"])+ (" ")* ([">"])? >
-|   < HTMLATTR : (["a"-"z"])+ (" ")?(":"|"=")(" ")? (["a"-"z","0"-"9"])? (" ")* (";"|"\"")  >
+	< SPTAG : "<" (" ")* ("style"|"script") (" ")* > : IN_SP_TAG
+|   < OPENTAG : "<" (" ")* (["a"-"z","0"-"9"])+ (" ")* ([">"])? >
 |   < CLOSETAG : "<" (" ")* "/" (" ")* (["a"-"z","0"-"9"])+ (" ")* ">" >
+|   < SPATTR :  "style" (" ")*"="(" ")* "\"" > : IN_SP_ATTR
+|   < HTMLATTR : (["a"-"z"])+ (" ")?(":"|"=")(" ")? (["a"-"z","0"-"9"])? (" ")* (";"|"\"")  >
 |   < HTTP : (["a"-"z"])+("://")+ >
-| 	< HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
 | 	< PORT : ":"(["0"-"9"]){4} >
+|   < SHA : "sha" (" ")?(["0"-"9"]){3} "-" (["a"-"z","A"-"Z","0"-"9","/"])+ >
+}
+
+TOKEN :
+{	
+    < HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
 | 	< HTTPJNK : "/" (["a"-"z","A"-"Z","0"-"9",".","&","-","?","_","=",";",":","%"])+ >
 |   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
 //|   < IP : (  (["1"-"2"]){0,1}(["1"-"5"]){2} "."  )+ > // Need to fix this
+}
+
+< IN_SP_TAG > SKIP : {
+	< ENDSPTAG : "<" (" ")*"/"(" ")* ("style"|"script") >	: DEFAULT
+|   < SPTAGMISC : ~[] >
+}
+
+< IN_SP_ATTR > SKIP : {
+	< ENDSPATTR : "\"" > : DEFAULT
+|   < SPATTRMISC : ~[] >
 }
 
 TOKEN :
@@ -120,3 +143,14 @@ TOKEN :
 | 	< NUMBER : (["0"-"9"])+ ("."(["0"-"9"])+)? >
 | 	< MISC : ~[] >
 }
+
+/*
+// Some attempt to address the issue of tags between characters.
+
+< SPECIAL_WORD > MORE : {
+
+  < WORD4 : "<"("/")?((" "|"\\s")+)?("strong"|"sub")((" "|"\\s")+)?">" > : DEFAULT
+| < MISC_SP : ~[] >
+
+}
+*/
