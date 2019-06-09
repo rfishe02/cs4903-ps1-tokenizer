@@ -10,14 +10,14 @@ import java.io.File;
 
 public class Tokenizer{  public static void main(String args[]) throws ParseException  {
 
-    args = new String[1];
-    args[0] = "./input/Andrew L. Mackey.html";
-
 	//test(args);
 	run(args);
       }
 
   public static void test(String[] args) {
+
+	args = new String[1];
+    args[0] = "./input/Andrew L. Mackey.html";
 
 	try {
 
