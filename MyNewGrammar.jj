@@ -110,14 +110,6 @@ SKIP :
 |   < SHA : "sha" (" ")?(["0"-"9"]){3} "-" (["a"-"z","A"-"Z","0"-"9","/"])+ >
 }
 
-TOKEN :
-{	
-    < HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
-| 	< HTTPJNK : "/" (["a"-"z","A"-"Z","0"-"9",".","&","-","?","_","=",";",":","%"])+ >
-|   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
-//|   < IP : (  (["1"-"2"]){0,1}(["1"-"5"]){2} "."  )+ > // Need to fix this
-}
-
 < IN_SP_TAG > SKIP : {
 	< ENDSPTAG : "<" (" ")*"/"(" ")* ("style"|"script") >	: DEFAULT
 |   < SPTAGMISC : ~[] >
@@ -126,6 +118,14 @@ TOKEN :
 < IN_SP_ATTR > SKIP : {
 	< ENDSPATTR : "\"" > : DEFAULT
 |   < SPATTRMISC : ~[] >
+}
+
+TOKEN :
+{	
+    < HTTPDOM : ( (["a"-"z"])+(".") )+ (["a"-"z"])+ >
+| 	< HTTPJNK : "/" (["a"-"z","A"-"Z","0"-"9",".","&","-","?","_","=",";",":","%"])+ >
+|   < EMAIL : ( (["a"-"z","0"-"9","_",".","+","-"])+("@"|".") )+ (["a"-"z"])+ > // Can't start or end with certain things?
+//|   < IP : (  (["1"-"2"]){0,1}(["1"-"5"]){2} "."  )+ > // Need to fix this
 }
 
 TOKEN :
