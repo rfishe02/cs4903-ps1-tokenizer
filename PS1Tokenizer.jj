@@ -175,13 +175,32 @@ TOKEN : {
 	>
 }
 
+/*
+	These two MORE sections attempt to grab combined words/ tricky numbers.
+	(Contractions, formatted numbers, or odd puntuation).
+
+	It may pass through MORE once, or twice in TAGINT, where the token is modified.
+	Eventually, it's classified as WORD or NUMBER when it reaches the following
+	regex expressions.
+
+	I *may* use this to deal with w o r d s l i k e t h e s e.
+*/
+
+MORE :
+	{
+    < CONT : (["a"-"z","A"-"Z"])+"'" >
+|   < TECH : (["a"-"z","A"-"Z"])+(["0"-"9"])+ >
+| 	< BIGNUM : (["0"-"9"])+(","|".") >
+}
+
+
 /* Deal with situations where tags are too close to words.*/
 
 TOKEN : {
     < CROWDED : ">" ((["a"-"z","A"-"Z","'"])+ |< REDDITU >) > {
 		matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
     }
-|   < CROWDED2 : ((["a"-"z","A"-"Z","'"])+ |< REDDITU >) "<" (" ")* "/" > {
+|   < CROWDED2 : ((["a"-"z","A"-"Z","'"])+ |< REDDITU >) < CLOSETAG > > {
   		matchedToken.image = image.substring(0,image.indexOf("<"));
     }
 }
@@ -283,16 +302,6 @@ TOKEN : {
 	}
 
 	image.delete(wordEnd,image.length()); // Probably not efficient.
-
-
-	These two MORE sections attempt to grab combined words/ tricky numbers.
-	(Contractions, formatted numbers, or odd puntuation).
-
-	It may pass through MORE once, or twice in TAGINT, where the token is modified.
-	Eventually, it's classified as WORD or NUMBER when it reaches the following
-	regex expressions.
-
-	I *may* use this to deal with w o r d s l i k e t h e s e.
 
 	Need to address this case
 	<h2>Keyboard Shortcuts</h2>
