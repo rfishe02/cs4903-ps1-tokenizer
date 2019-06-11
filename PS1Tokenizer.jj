@@ -19,7 +19,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
   public static void test(String[] args) {
 
 	args = new String[2];
-    args[0] = "./input/Unresolved Mysteries.html";
+    args[0] = "./input/wint (@dril) _ Twitter.html";
     args[1] = "./output";
 
 	//test.txt
@@ -36,7 +36,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 			t = parser.getNextToken();
 
 			if(!UATokenizer.tokenImage[t.kind].equals("<MISC>")) {
-				//System.out.printf("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]);
+				System.out.printf("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]);
 				bw.write(String.format("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]));
 			}
 
@@ -97,11 +97,47 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
 TOKEN_MGR_DECLS : {
 
-	int tagSt;
+	int wordEnd;
 	boolean tagCt;
 	
 }
 SKIP : {  < SPACE : (" "|"\t"|"&nbsp;")+ >| < NEWLINE : ("\r"|"\n") >}
+
+/*
+	The follwoing attempt to skip tags and certain attributes, such as style and
+	script tags that do not contribute useful information.
+	
+	Alse tries to exclude href, src, and alt attributes from omission. These terms
+	are picked up by other regex expressions.
+*/
+
+SKIP : {
+	< OCTAG : "<" (" ")*("style"|"script"|"button"|"noscript"|"!--") (" ")* > : IN_OC_TAG
+| 	< OPTAG : "<" (" ")* ("link") (" ")* > : IN_OP_TAG
+|   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9"])+(" ")* >
+|   < CLOSETAG : "<" (" ")*"/"(" ")* (["a"-"z","A"-"Z","0"-"9"])+ (" ")* ">" >
+|   < SPATTR :  ("href"|"alt") (" ")*"="(" ")* "\"" >
+|   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR
+}
+
+< IN_OC_TAG > SKIP : {
+	< ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
+| 	< ENDBTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+| 	< ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
+| 	< ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
+| 	< ENDCMT : "--"(" ")*">" > : DEFAULT
+|   < SPTAGMISC : ~[] >
+}
+
+< IN_OP_TAG > SKIP : {
+  	< ENDOPTAG : (">") > : DEFAULT
+|   < OPTAGMISC : ~[] >
+}
+
+< IN_HTML_ATTR > SKIP : {
+	< ENDSPATTR : ("\""|">") > : DEFAULT
+|   < SPATTRMISC : ~[] >
+}
 
 /*
 	Random patterns of human constructs. Price is necessary, but I'm not sure how useful
@@ -153,20 +189,30 @@ TOKEN : {
     < CROWDED1 : ">" ((["a"-"z","A"-"Z","'"])+|< REDDITU >) > {
 		matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
     }
+|   < CROWDED2 : (["a"-"z","A"-"Z","'"])+ "<" > {
+		matchedToken.image = image.substring(0,image.indexOf("<"));
+    }
 }
+
+/*
+<h2>Keyboard Shortcuts</h2>
+<p> Keyboard 
+*/
 
 MORE :
 {
-  	< TAGINT :  (["a"-"z","A"-"Z"])+ ("<" (" ")* ("/")? (" ")* (["a"-"z","0"-"9"])+ (" ")* ">" ) > {
+  	< TAGINT :  (["a"-"z","A"-"Z"])+ ("<" (" ")* ("/")? (" ")* ) > {
 
 		if(!tagCt) {
 	  		tagCt = true;
 	  	}
 		image.delete(image.indexOf("<"),image.length()); // Probably not efficient.
+		wordEnd=image.length();
+
+		System.out.println(image);
   		
   	}
 |   < CONT : (["a"-"z","A"-"Z"])+"'" >
-| 	< TECH : (["a"-"z","A"-"Z"])+(["0"-"9"])+ >
 | 	< BIGNUM : (["0"-"9"])+(","|".") >
 }
 
@@ -176,50 +222,38 @@ MORE :
 
 TOKEN : {
  	< BREV : (["A"-"Z"]"."(" ")?)+ >
-|   < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
-|	< USER : "@" (["a"-"z","A"-"Z"])+ >
+|   < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
+|	< USER : "@" (["a"-"z","A"-"Z","0"-"9"])+ >
 }
 
 TOKEN : {
   	< WORD : (["a"-"z","A"-"Z"])+ > {
-  
+
   	  if(tagCt) {
+
+		image.delete(wordEnd,image.length()); // Probably not efficient.
 		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
+
 		tagCt = false;
+		
 	  }
 	  
   	}
+|	< TECH : ((["a"-"z","A"-"Z"]){1,2}(["0"-"9"]){1,2}){2,10} > {
+
+	  if(tagCt) {
+
+		image.delete(wordEnd,image.length()); // Probably not efficient.
+		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
+
+		tagCt = false;
+		
+	  }
+	  
+	}
+
 | 	< NUMBER : (["0"-"9"])+>
 | 	< MISC: ~[] >
-}
-
-/*
-	The follwoing attempt to skip tags and certain attributes, such as style and
-	script tags that do not contribute useful information.
-	
-	Alse tries to exclude href, src, and alt attributes from omission. These terms
-	are picked up by other regex expressions.
-*/
-
-SKIP : {
-	< SPTAG : "<" (" ")*("style"|"script"|"button"|"noscript")(" ")* > : IN_SK_TAG
-|   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9"])+(" ")* >
-|   < CLOSETAG : "<" (" ")*"/"(" ")* (["a"-"z","A"-"Z","0"-"9"])+ (" ")* ">" >
-|   < SPATTR :  ("href"|"src"|"alt") (" ")*"="(" ")* "\"" >
-|   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* "\"" > : IN_SK_ATTR
-}
-
-< IN_SK_TAG > SKIP : {
-	< ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
-| 	< ENDBTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| 	< ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
-| 	< ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
-|   < SPTAGMISC : ~[] >
-}
-
-< IN_SK_ATTR > SKIP : {
-	< ENDSPATTR : ("\""|">") > : DEFAULT
-|   < SPATTRMISC : ~[] >
 }
 
 /*
@@ -229,8 +263,9 @@ SKIP : {
 
 SKIP : {
  	< HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"])+ >
-| 	< HTTPLNK : ("/") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"])+ >
-|   < HTTP : (["a"-"z"])+("://")+ >
+| 	< HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"])+ >
+|   < FILE : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
+|   < HTTP : ((["a"-"z"])+|("chrome-extension")) ("://")+ >
 | 	< PORT : ":"(["0"-"9"]){2,4} >
 }
 
