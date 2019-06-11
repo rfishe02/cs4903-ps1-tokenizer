@@ -19,7 +19,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
   public static void test(String[] args) {
 
 	args = new String[2];
-    args[0] = "./input/wint (@dril) _ Twitter.html";
+    args[0] = "./input/test.txt";
     args[1] = "./output";
 
 	//test.txt
@@ -98,6 +98,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 TOKEN_MGR_DECLS : {
 
 	int wordEnd;
+	int tagSt;
 	boolean tagCt;
 	
 }
@@ -174,50 +175,20 @@ TOKEN : {
 	>
 }
 
-/*
-	These two MORE sections attempt to grab combined words/ tricky numbers.
-	(Contractions, formatted numbers, or odd puntuation).
-
-	It may pass through MORE once, or twice in TAGINT, where the token is modified.
-	Eventually, it's classified as WORD or NUMBER when it reaches the following
-	regex expressions.
-
-	I *may* use this to deal with w o r d s l i k e t h e s e.
-*/
+/* Deal with situations where tags are too close to words.*/
 
 TOKEN : {
-    < CROWDED1 : ">" ((["a"-"z","A"-"Z","'"])+|< REDDITU >) > {
+    < CROWDED : ">" ((["a"-"z","A"-"Z","'"])+ |< REDDITU >) > {
 		matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
     }
-|   < CROWDED2 : (["a"-"z","A"-"Z","'"])+ "<" > {
-		matchedToken.image = image.substring(0,image.indexOf("<"));
+|   < CROWDED2 : ((["a"-"z","A"-"Z","'"])+ |< REDDITU >) "<" (" ")* "/" > {
+  		matchedToken.image = image.substring(0,image.indexOf("<"));
     }
-}
-
-/*
-<h2>Keyboard Shortcuts</h2>
-<p> Keyboard 
-*/
-
-MORE :
-{
-  	< TAGINT :  (["a"-"z","A"-"Z"])+ ("<" (" ")* ("/")? (" ")* ) > {
-
-		if(!tagCt) {
-	  		tagCt = true;
-	  	}
-		image.delete(image.indexOf("<"),image.length()); // Probably not efficient.
-		wordEnd=image.length();
-
-		System.out.println(image);
-  		
-  	}
-|   < CONT : (["a"-"z","A"-"Z"])+"'" >
-| 	< BIGNUM : (["0"-"9"])+(","|".") >
 }
 
 /* The two TOKEN below grab basic / complex words that don't require the
    concatentation of the preceding MORE sections.
+
  */
 
 TOKEN : {
@@ -231,27 +202,12 @@ TOKEN : {
 
   	  if(tagCt) {
 
-		image.delete(wordEnd,image.length()); // Probably not efficient.
-		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
-
+  	    matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
 		tagCt = false;
 		
 	  }
 	  
   	}
-|	< TECH : ((["a"-"z","A"-"Z"]){1,2}(["0"-"9"]){1,2}){2,10} > {
-
-	  if(tagCt) {
-
-		image.delete(wordEnd,image.length()); // Probably not efficient.
-		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
-
-		tagCt = false;
-		
-	  }
-	  
-	}
-
 | 	< NUMBER : (["0"-"9"])+>
 | 	< MISC: ~[] >
 }
@@ -301,24 +257,70 @@ TOKEN : {
  ( (" ")*((["a"-"z","A"-"Z","0"-"9","-","=",";","[","]","_"])+(" ")*)+ )? "\""
 
 
-< OBS : (["a"-"z","A"-"Z"])+ (["<"]) > 
-  	{
+  	< CROWDED2 :  (["a"-"z","A"-"Z","0"-"9"])+ "<" (" ")* ("/")?
+  	 > {
 
-	  System.out.println("\n"+image+"\n");
+		System.out.println(image);
+
+		if(!tagCt) {
+	  		tagCt = true;
+	  	}
+		image.delete(image.indexOf("<"),image.length()); // Probably not efficient.
+		wordEnd=image.length();
+  		
+  	}
+
+|	< TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){1,24} > {
+
+	  if(tagCt) {
+
+	    image.delete(wordEnd,image.length()); // Probably not efficient.
+		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
+
+		tagCt = false;
+		
+	  }
+	  
+	}
+
+	image.delete(wordEnd,image.length()); // Probably not efficient.
+
+
+	These two MORE sections attempt to grab combined words/ tricky numbers.
+	(Contractions, formatted numbers, or odd puntuation).
+
+	It may pass through MORE once, or twice in TAGINT, where the token is modified.
+	Eventually, it's classified as WORD or NUMBER when it reaches the following
+	regex expressions.
+
+	I *may* use this to deal with w o r d s l i k e t h e s e.
+
+	Need to address this case
+	<h2>Keyboard Shortcuts</h2>
+	<p> Keyboard 
+
+	MORE :
+	{
+   	< OBS : (["a"-"z","A"-"Z"])+ (["<"]) > 
+  	{
+	  System.out.println(image);
   	  
-      if(!tagCt) {
+	  if(!tagCt) {
 	  	tagCt = true;
 	  }
   	  tagSt = image.length()-1;
 
   	} : OBS_PARSE
-|
+|   < CONT : (["a"-"z","A"-"Z"])+"'" >
+|   < TECH : (["a"-"z","A"-"Z"])+(["0"-"9"])+ >
+| 	< BIGNUM : (["0"-"9"])+(","|".") >
+}
 
-< OBS_PARSE > MORE : {
-	< A : ">" > {
+	< OBS_PARSE > MORE : {
+	< A : (">") > {
       image.delete(tagSt,image.length()); // Create a truncated word, without offending punctuation.
 	  } : DEFAULT
 | 	< C : ~[] > 
 }
-
+	
 -------------------------------*/
