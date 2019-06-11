@@ -205,13 +205,10 @@ TOKEN : {
     }
 }
 
-/* The two TOKEN below grab basic / complex words that don't require the
-   concatentation of the preceding MORE sections.
- */
+/* Misc. site specific entities. */
 
 TOKEN : {
- 	< BREV : (["A"-"Z"]"."(" ")?)+ >
-|   < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
+    < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
 |	< USER : "@" (["a"-"z","A"-"Z","0"-"9"])+ >
 }
 
@@ -226,6 +223,7 @@ TOKEN : {
 	  }
 	  
   	}
+|  	< BREV : (["A"-"Z"](".")(" ")?)+ >
 | 	< NUMBER : (["0"-"9"])+>
 | 	< MISC: ~[] >
 }
