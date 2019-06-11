@@ -188,7 +188,6 @@ TOKEN : {
 
 /* The two TOKEN below grab basic / complex words that don't require the
    concatentation of the preceding MORE sections.
-
  */
 
 TOKEN : {
