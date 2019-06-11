@@ -19,7 +19,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
   public static void test(String[] args) {
 
 	args = new String[2];
-    args[0] = "./input/test.txt";
+    args[0] = "./input/HTML JavaScript.html";
     args[1] = "./output";
 
 	//test.txt
@@ -36,7 +36,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 			t = parser.getNextToken();
 
 			if(!UATokenizer.tokenImage[t.kind].equals("<MISC>")) {
-				System.out.printf("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]);
+				//System.out.printf("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]);
 				bw.write(String.format("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]));
 			}
 
@@ -102,7 +102,7 @@ TOKEN_MGR_DECLS : {
 	boolean tagCt;
 	
 }
-SKIP : {  < SPACE : (" "|"\t"|"&nbsp;")+ >| < NEWLINE : ("\r"|"\n") >}
+SKIP : {  < SPACE : (" "|"\t")+ >| < NEWLINE : ("\r"|"\n") >}
 
 /*
 	The follwoing attempt to skip tags and certain attributes, such as style and
@@ -119,6 +119,7 @@ SKIP : {
 |   < CLOSETAG : "<" (" ")*"/"(" ")* (["a"-"z","A"-"Z","0"-"9"])+ (" ")* ">" >
 |   < SPATTR :  ("href"|"alt") (" ")*"="(" ")* "\"" >
 |   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR
+|   < SYMBOL : "&"(["a"-"z"]){2,4}";" >
 }
 
 < IN_OC_TAG > SKIP : {
