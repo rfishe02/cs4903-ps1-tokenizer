@@ -21,6 +21,9 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 	args = new String[2];
     args[0] = "./input/test.txt";
     args[1] = "./output";
+    
+	String[] header = {"email","price","phone","word","total"};
+    int[] count = new int[6];
 
 	//test.txt
 
@@ -36,11 +39,14 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 			t = parser.getNextToken();
 
 			if(!UATokenizer.tokenImage[t.kind].equals("<MISC>")) {
-				//System.out.printf("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]);
+
 				bw.write(String.format("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]));
+				countType(UATokenizer.tokenImage[t.kind],count);
 			}
 
 		} while(t.kind != UATokenizerConstants.EOF);
+
+		printResults(header,count);
 
 		bw.close();
 
@@ -54,6 +60,8 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
 	String[] spl;
 	String filename;
+	String[] header = {"email","price","phone","word","total","files"};
+	int[] count = new int[6];
 
 	try {
 
@@ -78,18 +86,49 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
 				t = parser.getNextToken();
 
-				if(!UATokenizer.tokenImage[t.kind].equals("<MISC>")) {
-					bw.write(t.image.toLowerCase()+"\n");
-				}
+				bw.write(t.image.toLowerCase()+"\n");
+				countType(UATokenizer.tokenImage[t.kind],count);
 
 			} while(t.kind != UATokenizerConstants.EOF);
 
-			bw.close();            
+			bw.close();
+
+			count[5]++;            
 
 	  	}
 
+	  	printResults(header,count);
+
 	} catch(IOException ex) {
 		System.exit(1);
+	}
+
+  }
+
+  public static void countType(String type, int[] count) {
+
+	if(type.equals("<EMAIL>")) {
+		count[0]++;
+	} else if(type.equals("<PRICE>")) {
+		count[1]++;
+	} if(type.equals("<PHONE34>")||
+	type.equals("<PHONE32>")||
+	type.equals("<PHONE58>")) {
+		count[2]++;
+	} else if(!type.equals("<BIGNUM>") &&
+	!type.equals("<HTTPDOM>")
+	) {
+		count[3]++;
+	}
+
+	count[4]++;
+
+  }
+
+  public static void printResults(String[] label, int[] count) {
+
+	for(int i = 0; i < label.length; i++) {
+			System.out.printf("%15s %50d\n",label[i],count[i]);
 	}
 
   }
@@ -181,7 +220,7 @@ TOKEN : {
 		String[] b = image.toString().replaceAll("([\\(]|[\\)]|[+])","").split("[\\s,\\.,-]");
 		matchedToken.image = b[b.length-3] + b[b.length-2] + b[b.length-1];
 	 }
-|   < PHONE35 : (  ("+")?(["0"-"9"]){1,2}["-"," ","."]  )?
+|   < PHONE58 : (  ("+")?(["0"-"9"]){1,2}["-"," ","."]  )?
 		("(")?(["0"-"9"]){2,5}(")")?["-"," ","."]  (["0"-"9"]){5,8}
 	> { 
 		String[] c = image.toString().replaceAll("([\\(]|[\\)]|[+])","").split("[\\s,\\.,-]");
