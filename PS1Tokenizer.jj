@@ -69,9 +69,8 @@ public class UATokenizer
 	  	}
 
 		closeWriters(bw);
-	  	printResults(count);
-		System.out.printf("%-25s %-50.2f","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0);
-
+	  	printResults(count,start);
+		
 	} catch(IOException ex) {
 	  	ex.printStackTrace();
 		System.exit(1);
@@ -174,7 +173,7 @@ public class UATokenizer
 
   }
 
-  public static void printResults(int[] count) {
+  public static void printResults(int[] count, long start) {
 
 	try {
         
@@ -186,7 +185,10 @@ public class UATokenizer
 			//System.out.printf("%-25s %-50d\n",label[i],count[i]);
             bw.write(String.format("%-25s %-50d\n",label[i],count[i]));
         }
-	
+        
+        //System.out.printf("%-25s %-50.2f","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0);
+        bw.write(String.format("%-25s %-50.2f\n","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0));
+        
         bw.close();
         
     } catch(IOException ex) {
