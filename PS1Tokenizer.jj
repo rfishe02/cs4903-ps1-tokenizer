@@ -22,8 +22,7 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
     args[0] = "./input/test.txt";
     args[1] = "./output";
     
-	String[] header = {"email","price","phone","word","total"};
-    int[] count = new int[6];
+	int[] count = new int[6];
 
 	//test.txt
 
@@ -45,10 +44,10 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 			}
 
 		} while(t.kind != UATokenizerConstants.EOF);
-
-		printResults(header,count);
-
 		bw.close();
+
+		count[5]++;
+		printResults(count);
 
 	} catch(IOException ex) {
 		System.exit(1);
@@ -60,7 +59,6 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
 	String[] spl;
 	String filename;
-	String[] header = {"email","price","phone","word","total","files"};
 	int[] count = new int[6];
 
 	try {
@@ -90,14 +88,12 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 				countType(UATokenizer.tokenImage[t.kind],count);
 
 			} while(t.kind != UATokenizerConstants.EOF);
-
 			bw.close();
 
 			count[5]++;            
-
 	  	}
 
-	  	printResults(header,count);
+	  	printResults(count);
 
 	} catch(IOException ex) {
 		System.exit(1);
@@ -125,7 +121,9 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
   }
 
-  public static void printResults(String[] label, int[] count) {
+  public static void printResults(int[] count) {
+
+	String[] label = {"email","price","phone","word","total","files"};
 
 	for(int i = 0; i < label.length; i++) {
 			System.out.printf("%15s %50d\n",label[i],count[i]);
