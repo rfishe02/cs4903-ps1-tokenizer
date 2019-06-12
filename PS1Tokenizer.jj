@@ -10,90 +10,112 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
 
-public class UATokenizer{  public static void main(String args[]) throws ParseException  {
+public class UATokenizer{
 
-	test(args);
-	//run(args);
-      } 
+  static boolean test = true;
+    public static void main(String args[]) throws ParseException  {
 
-  public static void test(String[] args) {
+    if(test) {
+		args = new String[2];
+    	args[0] = "./input/test.txt";
+    	args[1] = "./output";
+    }
 
-	args = new String[2];
-    args[0] = "./input/test.txt";
-    args[1] = "./output";
-    
-	int[] count = new int[6];
-
-	//test.txt
-
-	try {
-
-		BufferedInputStream bis = new BufferedInputStream(new FileInputStream(args[0]));
-		BufferedWriter bw = new BufferedWriter(new FileWriter("tokens.txt"));
-		UATokenizer parser = new UATokenizer(bis);
-		Token t;
-
-		do {
-
-			t = parser.getNextToken();
-
-			if(!UATokenizer.tokenImage[t.kind].equals("<MISC>")) {
-
-				bw.write(String.format("%20s %20s\n",t.image,UATokenizer.tokenImage[t.kind]));
-				countType(UATokenizer.tokenImage[t.kind],count);
-			}
-
-		} while(t.kind != UATokenizerConstants.EOF);
-		bw.close();
-
-		count[5]++;
-		printResults(count);
-
-	} catch(IOException ex) {
-		System.exit(1);
-	}
-
-  }
+	run(args);
+      }
 
   public static void run(String[] args) {
 
 	String[] spl;
 	String filename;
-	int[] count = new int[6];
+	int[] count = new int[7];
 
 	try {
 
-	  	File outDir = new File(args[1]);
-
-	  	if(!outDir.exists()) {
-			outDir.mkdir();
-	  	}
-
-		File inDir = new File(args[0]);
+	  	File inDir = new File(args[0]);
 	  	File[] files = inDir.listFiles();
 
-	  	for(File f : files) {
+		File outDir = new File(args[1]);
+		if(!outDir.exists()) {
+			outDir.mkdir();
+	  	}
+	  	
+		BufferedWriter[] bw = getWriters(outDir);
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(args[1]+"/"+f.getName()+".out"));
-
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f.getPath()));
-			UATokenizer parser = new UATokenizer(bis);
-			Token t;
-
-			do {
-
-				t = parser.getNextToken();
-
-				bw.write(t.image.toLowerCase()+"\n");
-				countType(UATokenizer.tokenImage[t.kind],count);
-
-			} while(t.kind != UATokenizerConstants.EOF);
-			bw.close();
-
-			count[5]++;            
+	  	if(files == null) {
+	  	 	processFile(bw,inDir,count);
+			
+	  	} else {
+	  	  
+			for(File f : files) {
+            	processFile(bw,f,count);       
+	  		}
+	  		
 	  	}
 
+		closeWriters(bw);
 	  	printResults(count);
+
+	} catch(IOException ex) {
+	  	ex.printStackTrace();
+		System.exit(1);
+	}
+
+  }
+
+  public static void processFile(BufferedWriter[] bw, File f, int[] count) throws IOException {
+
+	BufferedInputStream bis;
+	UATokenizer parser;
+	Token t;
+
+	bis = new BufferedInputStream(new FileInputStream(f));
+    parser = new UATokenizer(bis);
+		
+	do {
+		t = parser.getNextToken();
+		recordToken(bw,t,count);
+
+	} while(t.kind != UATokenizerConstants.EOF);
+
+	bis.close();
+	count[1]++;
+
+  }
+
+  public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
+
+	//"tokens.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"
+	//"total","files","email","domain","price","word","phone"
+
+	try {
+
+	  String type = UATokenizer.tokenImage[t.kind];
+	  String fmt = t.image.toLowerCase();
+
+	  count[0]++;
+	  bw[0].write(fmt+"\n");
+
+	  if(type.equals("<EMAIL>")) {
+		bw[1].write(fmt+"\n");
+		count[2]++;
+		
+	  } else if(type.equals("<HTTPDOM>")) {
+		bw[2].write(fmt+"\n");
+		count[3]++;
+
+	  } else if(type.equals("<PRICE>")) {
+		bw[3].write(fmt+"\n");
+		count[4]++;
+		
+	  } else if(type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")) {
+		bw[5].write(fmt+"\n");
+		count[6]++;
+		
+	  } else if(!type.equals("<BIGNUM>") && !type.equals("<HTTPDOM>")) {
+		bw[4].write(fmt+"\n");
+		count[5]++;
+	  } 
 
 	} catch(IOException ex) {
 		System.exit(1);
@@ -101,29 +123,43 @@ public class UATokenizer{  public static void main(String args[]) throws Parse
 
   }
 
-  public static void countType(String type, int[] count) {
+  public static BufferedWriter[] getWriters(File inDir) {
 
-	if(type.equals("<EMAIL>")) {
-		count[0]++;
-	} else if(type.equals("<PRICE>")) {
-		count[1]++;
-	} if(type.equals("<PHONE34>")||
-	type.equals("<PHONE32>")||
-	type.equals("<PHONE58>")) {
-		count[2]++;
-	} else if(!type.equals("<BIGNUM>") &&
-	!type.equals("<HTTPDOM>")
-	) {
-		count[3]++;
+	BufferedWriter[] bw = null;
+
+	try {
+
+		String[] filenames = {"tokens.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
+		bw = new BufferedWriter[filenames.length];
+
+		for (int i = 0; i < filenames.length; i++) {
+		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"\\"+filenames[i]));
+		}
+
+	} catch(IOException ex) {
+	  	ex.printStackTrace();
+		System.exit(1);
 	}
 
-	count[4]++;
+	return bw;
+	
+  }
 
+  public static void closeWriters(BufferedWriter[] bw) {
+
+	try {
+		for(BufferedWriter b : bw) {
+	  		b.close();
+		}
+	} catch(IOException ex) {
+		System.exit(1);
+	}
+	
   }
 
   public static void printResults(int[] count) {
 
-	String[] label = {"email","price","phone","word","total","files"};
+	String[] label = {"total","files","email","domain","price","word","phone"};
 
 	for(int i = 0; i < label.length; i++) {
 			System.out.printf("%15s %50d\n",label[i],count[i]);
