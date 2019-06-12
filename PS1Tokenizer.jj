@@ -14,12 +14,12 @@ import java.io.InputStreamReader;
 
 public class UATokenizer{
 
-  static boolean test = true;
+  static boolean test = false;
     public static void main(String args[]) throws ParseException  {
 
     if(test) {
 		args = new String[2];
-    	args[0] = "./input/test.txt";
+    	args[0] = "./input";
     	args[1] = "./output";
     }
 
