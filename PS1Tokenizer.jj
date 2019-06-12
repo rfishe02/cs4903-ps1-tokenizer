@@ -17,7 +17,7 @@ public class UATokenizer{
 
     if(test) {
 		args = new String[2];
-    	args[0] = "./input/test.txt";
+    	args[0] = "./input";
     	args[1] = "./output";
     }
 
@@ -29,6 +29,7 @@ public class UATokenizer{
 	String[] spl;
 	String filename;
 	int[] count = new int[7];
+	long start;
 
 	try {
 
@@ -41,20 +42,22 @@ public class UATokenizer{
 	  	}
 	  	
 		BufferedWriter[] bw = getWriters(outDir);
+		start = System.currentTimeMillis();
 
 	  	if(files == null) {
-	  	 	processFile(bw,inDir,count);
+	  	 	processFile(bw,inDir,count); // Process a single file.
 			
 	  	} else {
 	  	  
 			for(File f : files) {
-            	processFile(bw,f,count);       
+            	processFile(bw,f,count); // Process multiple files.
 	  		}
 	  		
 	  	}
 
 		closeWriters(bw);
 	  	printResults(count);
+		System.out.printf("%-25s %-50.2f","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0);
 
 	} catch(IOException ex) {
 	  	ex.printStackTrace();
@@ -93,9 +96,8 @@ public class UATokenizer{
 	  String type = UATokenizer.tokenImage[t.kind];
 	  String fmt = t.image.toLowerCase();
 
-	  count[0]++;
-	  bw[0].write(fmt+"\n");
-
+	  count[0]++; // Count number of tokens processed.
+	
 	  if(type.equals("<EMAIL>")) {
 		bw[1].write(fmt+"\n");
 		count[2]++;
@@ -112,10 +114,12 @@ public class UATokenizer{
 		bw[5].write(fmt+"\n");
 		count[6]++;
 		
-	  } else if(!type.equals("<BIGNUM>") && !type.equals("<HTTPDOM>")) {
+	  } else if(!type.equals("<BIGNUM>")) {
 		bw[4].write(fmt+"\n");
 		count[5]++;
-	  } 
+	  } else {
+		bw[0].write(fmt+"\n"); // Write remaining tokens to a separate file.
+	  }
 
 	} catch(IOException ex) {
 		System.exit(1);
@@ -129,7 +133,7 @@ public class UATokenizer{
 
 	try {
 
-		String[] filenames = {"tokens.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
+		String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
 		bw = new BufferedWriter[filenames.length];
 
 		for (int i = 0; i < filenames.length; i++) {
@@ -159,10 +163,10 @@ public class UATokenizer{
 
   public static void printResults(int[] count) {
 
-	String[] label = {"total","files","email","domain","price","word","phone"};
+	String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
 
 	for(int i = 0; i < label.length; i++) {
-			System.out.printf("%15s %50d\n",label[i],count[i]);
+			System.out.printf("%-25s %-50d\n",label[i],count[i]);
 	}
 
   }
