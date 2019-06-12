@@ -181,6 +181,8 @@ public class UATokenizer
      
         String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
 
+        bw.write("======= Project Gengar Tokenization Summary =======\n");
+        
         for(int i = 0; i < label.length; i++) {
 			//System.out.printf("%-25s %-50d\n",label[i],count[i]);
             bw.write(String.format("%-25s %-50d\n",label[i],count[i]));
