@@ -38,7 +38,9 @@ $1,000,000.00
 192.168.1.12
 10.1.1.1
 ¥2000
-tel<bf>lepho</bf>ne
+tele<b>phone</b>
+answer<b>the</b>phone
+<h4>a test</h4>
 abc
 A. Mackey
 S.E. Hinton
@@ -47,3 +49,4 @@ H2O
 1:00 PM
 A.C.M.
 U.A.F.S.
+Hello, I'm a big fan!
