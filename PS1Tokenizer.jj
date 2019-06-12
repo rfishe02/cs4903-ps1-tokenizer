@@ -177,7 +177,7 @@ public class UATokenizer
 
 	try {
         
-        BufferedWriter bw = new BufferedWriter(new FileWriter("results.txt"));
+        BufferedWriter bw = new BufferedWriter(new FileWriter("summary.txt"));
      
         String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
 
