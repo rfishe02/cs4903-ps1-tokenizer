@@ -1,7 +1,14 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = false;
-  LOOKAHEAD=2;}PARSER_BEGIN(UATokenizer)
+ */
+options
+{
+  static = false;
+  LOOKAHEAD=1;
+}
+
+PARSER_BEGIN(UATokenizer)
+
 import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedInputStream;
@@ -12,10 +19,13 @@ import java.io.FileWriter;
 import java.io.File;
 import java.io.InputStreamReader;
 
-public class UATokenizer{
+public class UATokenizer
+{
 
   static boolean test = false;
-    public static void main(String args[]) throws ParseException  {
+  
+  public static void main(String args[]) throws ParseException
+  {
 
     if(test) {
 		args = new String[2];
@@ -24,7 +34,8 @@ public class UATokenizer{
     }
 
 	run(args);
-      }
+    
+  }
 
   public static void run(String[] args) {
 
@@ -139,7 +150,7 @@ public class UATokenizer{
 		bw = new BufferedWriter[filenames.length];
 
 		for (int i = 0; i < filenames.length; i++) {
-		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"\\"+filenames[i]));
+		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
 		}
 
 	} catch(IOException ex) {
@@ -172,7 +183,10 @@ public class UATokenizer{
 	}
 
   }
-  }PARSER_END(UATokenizer)
+  
+}
+
+PARSER_END(UATokenizer)
 
 TOKEN_MGR_DECLS : {
 
@@ -185,7 +199,11 @@ TOKEN_MGR_DECLS : {
 	String psep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
 	
 }
-SKIP : {  < SPACE : (" "|"\t")+ >| < NEWLINE : ("\r"|"\n")+ >}
+
+SKIP : {
+  < SPACE : (" "|"\t")+ >
+| < NEWLINE : ("\r"|"\n")+ >
+}
 
 SKIP : {
   < APS : ("'"|"’"|"\u2019"|"&#39;"|"&#44;"|"â€™"|"&#x27;") >
