@@ -98,6 +98,40 @@ public class UATokenizer
 	count[1]++;
 
   }
+  
+  public static BufferedWriter[] getWriters(File inDir) {
+
+	BufferedWriter[] bw = null;
+
+	try {
+
+		String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
+		bw = new BufferedWriter[filenames.length];
+
+		for (int i = 0; i < filenames.length; i++) {
+		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
+		}
+
+	} catch(IOException ex) {
+	  	ex.printStackTrace();
+		System.exit(1);
+	}
+
+	return bw;
+	
+  }
+
+  public static void closeWriters(BufferedWriter[] bw) {
+
+	try {
+		for(BufferedWriter b : bw) {
+	  		b.close();
+		}
+	} catch(IOException ex) {
+		System.exit(1);
+	}
+	
+  }
 
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
 
@@ -140,47 +174,24 @@ public class UATokenizer
 
   }
 
-  public static BufferedWriter[] getWriters(File inDir) {
-
-	BufferedWriter[] bw = null;
-
-	try {
-
-		String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
-		bw = new BufferedWriter[filenames.length];
-
-		for (int i = 0; i < filenames.length; i++) {
-		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
-		}
-
-	} catch(IOException ex) {
-	  	ex.printStackTrace();
-		System.exit(1);
-	}
-
-	return bw;
-	
-  }
-
-  public static void closeWriters(BufferedWriter[] bw) {
-
-	try {
-		for(BufferedWriter b : bw) {
-	  		b.close();
-		}
-	} catch(IOException ex) {
-		System.exit(1);
-	}
-	
-  }
-
   public static void printResults(int[] count) {
 
-	String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
+	try {
+        
+        BufferedWriter bw = new BufferedWriter(new FileWriter("results.txt"));
+     
+        String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
 
-	for(int i = 0; i < label.length; i++) {
-			System.out.printf("%-25s %-50d\n",label[i],count[i]);
-	}
+        for(int i = 0; i < label.length; i++) {
+			//System.out.printf("%-25s %-50d\n",label[i],count[i]);
+            bw.write(String.format("%-25s %-50d\n",label[i],count[i]));
+        }
+	
+        bw.close();
+        
+    } catch(IOException ex) {
+        System.exit(1);
+    }
 
   }
   
