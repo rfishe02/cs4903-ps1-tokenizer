@@ -225,7 +225,7 @@ TOKEN_MGR_DECLS : {
 	boolean tagCt;
 	boolean cont;
 
-	String aps = "('|’|\u2019|&#39;|&#44;|&#x27;)";
+	String aps = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
 	String psep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
     
     String[] tmp;
@@ -234,7 +234,7 @@ TOKEN_MGR_DECLS : {
 
 SKIP : {
   < SPACE : (" "|"\t")+ >
-| < NEWLINE : ("\r"|"\n")+ >
+| < NEWLINE : ("\r"|"\n") >
 }
 
 SKIP : {
@@ -339,7 +339,7 @@ TOKEN : {
 
 MORE :
 	{
-    < CONT : (["a"-"z","A"-"Z"])+ < APS > > {
+    < CONT : (["a"-"z","A"-"Z"])+ (< APS >|"-") > {
 	  cont = true;}
 |   < TECH : (["a"-"z","A"-"Z"])+(["0"-"9"])+ >
 | 	< BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >

@@ -1,0 +1,3 @@
+grep "@helium" ../20_newsgroups/alt.atheism/*
+
+./tokenizer.sh /home/nae/Downloads/20_newsgroups/alt.atheism output
