@@ -29,7 +29,7 @@ public class UATokenizer
 
     if(test) {
 		args = new String[2];
-    	args[0] = "./input";
+    	args[0] = "./input/test.txt";
     	args[1] = "./output";
     }
 
@@ -39,6 +39,9 @@ public class UATokenizer
 
   public static void run(String[] args) {
 
+    File[] files;
+    File[] zDir;
+    File inDir;
 	String[] spl;
 	String filename;
 	int[] count = new int[7];
@@ -46,8 +49,8 @@ public class UATokenizer
 
 	try {
 
-	  	File inDir = new File(args[0]);
-	  	File[] files = inDir.listFiles();
+	  	inDir = new File(args[0]);
+	  	files = inDir.listFiles();
 
 		File outDir = new File(args[1]);
 		if(!outDir.exists()) {
@@ -63,7 +66,19 @@ public class UATokenizer
 	  	} else {
 	  	  
 			for(File f : files) {
-            	processFile(bw,f,count); // Process multiple files.
+            	
+                zDir = f.listFiles();
+                
+                if(zDir != null) {
+                    
+                    for(File z : zDir) {
+                        processFile(bw,z,count); // Process a file in a subdirectory.
+                    }
+                    
+                } else {
+                    processFile(bw,f,count); // Process multiple files.
+                }
+                
 	  		}
 	  		
 	  	}
@@ -238,7 +253,7 @@ SKIP : {
 SKIP : {
 	< OCTAG : "<" (" ")*("style"|"script"|"button"|"noscript"|"!--")(" ")* > : IN_OC_TAG
 | 	< OPTAG : "<" (" ")*("link"|"meta")(" ")* > : IN_OP_TAG
-|   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9"])+(" ")* >
+|   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z"])+(["0"-"9"])?(" ")* >
 |   < CLOSETAG : "<" (" ")*"/"(" ")*(["a"-"z","A"-"Z","0"-"9"])+(" ")* >
 |   < SPATTR :  ("href"|"alt") (" ")*"="(" ")* "\"" >
 |   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR
