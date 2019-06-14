@@ -439,7 +439,7 @@ TOKEN : {
 	"&#" (["0"-"9"]){3} ";"
 	| "&" 
 	( 
-	["e","E","i,"I,"o","O","a","u","U","n","N","A"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring")
+	["e","E","i,"I","o","O","a","u","U","n","N","A"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring")
 	| (["e","E"]|"sz")"lig"
 	| ("middot"|"eth"|"ETH"|"thorn"| "THORN") | "ord"["f","m"]";"
 	)
