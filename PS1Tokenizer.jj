@@ -175,9 +175,9 @@ public class UATokenizer
 		bw[5].write(fmt+"\n");
 		count[6]++;
 		
-	  } else if(type.equals("<COURSE>")||
-		type.equals("<ERA>")||
-		type.equals("<WORD>")||
+	  } else if(type.equals("<WORD>")||
+		type.equals("<CROWDED>")||
+		type.equals("<CROWDED2>")||
 		type.equals("<BREV>")) {
 		bw[4].write(fmt+"\n");
 		count[5]++;
