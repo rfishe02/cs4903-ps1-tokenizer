@@ -1,0 +1,84 @@
+/*-------------------------------*/
+/* Tried, but unhelpful. Yet, I can't delete them.
+
+|   < PRICE1 : ["$","£","¥"](["0"-"9"]){1,3}(","|".") > : PRICE_STATE
+
+< PRICE_STATE > MORE :
+{
+	< PRICE2 : (["0"-"9"]){1,3}(","|".") >
+}
+
+< PRICE_STATE > TOKEN :
+{
+ 	< PRICE : (["0"-"9"])+ > : DEFAULT
+| 	< MISC2: ~[] > : DEFAULT 
+}
+
+
+|   < FLAG : (["a"-"z","A"-"Z"])+ ["<","/",">"] > { image.deleteCharAt(image.length()-1); System.out.println(image); } // Need to figure this out.
+
+
+ ( (" ")*((["a"-"z","A"-"Z","0"-"9","-","=",";","[","]","_"])+(" ")*)+ )? "\""
+
+
+  	< CROWDED2 :  (["a"-"z","A"-"Z","0"-"9"])+ "<" (" ")* ("/")?
+  	 > {
+
+		System.out.println(image);
+
+		if(!tagCt) {
+	  		tagCt = true;
+	  	}
+		image.delete(image.indexOf("<"),image.length()); // Probably not efficient.
+		wordEnd=image.length();
+  		
+  	}
+
+|	< TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){1,24} > {
+
+	  if(tagCt) {
+
+	    image.delete(wordEnd,image.length()); // Probably not efficient.
+		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
+
+		tagCt = false;
+		
+	  }
+	  
+	}
+
+	image.delete(wordEnd,image.length()); // Probably not efficient.
+
+	Need to address this case
+	<h2>Keyboard Shortcuts</h2>
+	<p> Keyboard 
+
+	MORE :
+	{
+   	< OBS : (["a"-"z","A"-"Z"])+ (["<"]) > 
+  	{
+	  System.out.println(image);
+  	  
+	  if(!tagCt) {
+	  	tagCt = true;
+	  }
+  	  tagSt = image.length()-1;
+
+  	} : OBS_PARSE
+|   < CONT : (["a"-"z","A"-"Z"])+"'" >
+|   < TECH : (["a"-"z","A"-"Z"])+(["0"-"9"])+ >
+| 	< BIGNUM : (["0"-"9"])+(","|".") >
+}
+
+	< OBS_PARSE > MORE : {
+	< A : (">") > {
+      image.delete(tagSt,image.length()); // Create a truncated word, without offending punctuation.
+	  } : DEFAULT
+| 	< C : ~[] > 
+}
+
+TOKEN : {
+    < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
+|	< USER : ("@"|"&#64;") (["a"-"z","A"-"Z","0"-"9"])+ >
+	
+-------------------------------*/
