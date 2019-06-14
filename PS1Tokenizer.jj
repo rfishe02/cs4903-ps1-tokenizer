@@ -255,8 +255,8 @@ SKIP : {
 | 	< OPTAG : "<" (" ")*("link"|"meta")(" ")* > : IN_OP_TAG
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z"])+(["0"-"9"])?(" ")* >
 |   < CLOSETAG : "<" (" ")*"/"(" ")*(["a"-"z","A"-"Z","0"-"9"])+(" ")* >
-|   < SPATTR :  ("href"|"alt") (" ")*"="(" ")* "\"" >
-|   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR
+|   < SPATTR :  ("href"|"alt") (" ")*"="(" ")* ("\""|"'") >
+|   < HTMLATTR : (["a"-"z","A"-"Z","-"])+ (" ")*"="(" ")* ("\""|"'") > : IN_HTML_ATTR
 |   < SYMBOL : "&"("#")?(["a"-"z","A"-"Z","0"-"9"]){2,4}";" >
 }
 
@@ -275,7 +275,7 @@ SKIP : {
 }
 
 < IN_HTML_ATTR > SKIP : {
-	< ENDSPATTR : ("\""|">") > : DEFAULT
+	< ENDSPATTR : ("\""|"'"|">") > : DEFAULT
 |   < SPATTRMISC : ~[] >
 }
 
@@ -422,7 +422,7 @@ TOKEN : {
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
         
     }
-|   < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-"])+ "@" ((["a"-"z","A"-"Z"])+(".")?)+ > // Fix, because it can't start or end with certain things?
+|   < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ((["a"-"z","A"-"Z"])+(".")?)+ > // Fix, because it can't start or end with certain things?
 }
 
 /*-------------------------------*/
