@@ -12,26 +12,32 @@ fi
 
 # TEST ON RANDOM FILE #
 
-if [ -d "./in" ]
+if[ ${#@} > 2]
 then
-    rm -rf "./in"
+
+    if [ -d "./in" ]
+    then
+        rm -rf "./in"
+    fi
+
+    mkdir "./in"
+
+    NAMES=$( ls /uafs/textmining/big | shuf -n $3 )
+
+    for n in $NAMES
+    do
+        F=$( find /uafs/textmining/big -name $n)
+        cp $F "./in"
+    done
+
+    time java UATokenizer "in" $2
+
+else
+    time java UATokenizer $1 $2
+
 fi
 
-mkdir "./in"
-
-NAMES=$( ls /uafs/textmining/big | shuf -n 100 )
-
-for n in $NAMES
-do
-    F=$( find /uafs/textmining/big -name $n)
-    cp $F "./in"
-done
-
-time java UATokenizer "in" $2
-
 #----------------------#
-
-#time java UATokenizer $1 $2
 
 cat $2/*.txt > ./tokens.out
 
