@@ -12,10 +12,22 @@ fi
 
 # TEST ON RANDOM FILE #
 
-NAME=$( ls /uafs/textmining/big | shuf -n 1 )
-FILE=$( find /uafs/textmining/big -name $NAME )
+if [ -d "./in" ]
+then
+    rm -rf "./in"
+fi
 
-time java UATokenizer $FILE $2
+mkdir "./in"
+
+NAME=$( ls /uafs/textmining/big | shuf -n 5 )
+
+for n in $NAMES
+do
+    F=$( find /uafs/textmining/big -name $n)
+    cp $F "./in"
+done
+
+time java UATokenizer "in" $2
 
 #----------------------#
 
