@@ -383,7 +383,7 @@ TOKEN : {
     < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
 |	< USER : ("@"|"&#64;") (["a"-"z","A"-"Z","0"-"9"])+ >
 }*/
-
+ 
 TOKEN : {
   	< WORD : (["a"-"z","A"-"Z"])+ > {
 
