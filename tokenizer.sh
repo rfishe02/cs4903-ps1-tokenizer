@@ -10,7 +10,16 @@ then
     rm -rf "./output"
 fi
 
-time java UATokenizer $1 $2
+# TEST ON RANDOM FILE #
+
+NAME=$( ls /uafs/textmining/big | shuf -n 1 )
+FILE=$( find /uafs/textmining/big -name $NAME )
+
+time java UATokenizer $FILE $2
+
+#----------------------#
+
+#time java UATokenizer $1 $2
 
 cat $2/*.txt > ./tokens.out
 
