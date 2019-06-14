@@ -1,3 +1,9 @@
 grep "@helium" ../20_newsgroups/alt.atheism/*
 
 ./tokenizer.sh /home/nae/Downloads/20_newsgroups/alt.atheism output
+
+grep "width" ./in/* | head -n 100
+
+cat ./results/top100word.txt
+
+./tokenizer.sh input output 1000
