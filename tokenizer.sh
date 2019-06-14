@@ -42,6 +42,8 @@ then
     rm -rf "./results"
 fi
 
+mkdir "./results"
+
 cat frequency.txt | head -n 100 > ./results/top100.txt
 cat frequency.txt | tail -n 100 > ./results/bottom100.txt
 
