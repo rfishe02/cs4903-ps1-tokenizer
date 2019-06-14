@@ -253,7 +253,7 @@ SKIP : {
 SKIP : {
     < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
 |   < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
-|   < SELFCLOSETAG : "<" (" ")*("link"|"meta"|"i"|"td"|"table"|"!"|"path")(" ")* > : IN_SELFCLOSE_TAG
+|   < SELFCLOSETAG : "<" (" ")*("!"|"meta"|"link"|"i"|"td"|"table"|"path"|"span")(" ")* > : IN_SELFCLOSE_TAG
 |   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
 |   < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
