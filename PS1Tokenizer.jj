@@ -434,12 +434,12 @@ TOKEN : {
 
 TOKEN : {
 	< WORD : 
-	( ["a"-"z","A"-"Z"] | "&#" (["0"-"9"]){3} ";"
+	( ["a"-"z","A"-"Z"] ( "&#" (["0"-"9"]){3} ";"
 	| "&" (
 	["e","E","i","I","o","O","a","A","u","U","n","N"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring") 
 	| (["e","E"]|"sz")"lig" 
 	| ("middot"|"eth"|"ETH"|"thorn"|"THORN") 
-	"ord"["f","m"] ) ";" )+
+	"ord"["f","m"] ) ";" )? )+
 	> 
 	{
 	  if(tagCt) {
