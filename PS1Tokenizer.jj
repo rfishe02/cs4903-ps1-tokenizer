@@ -279,7 +279,7 @@ SKIP : {
 }
 
 <IN_SPATTR_LNK> SKIP : {
-|   < SPATTRLNKMISC : ~[] >
+	< SPATTRLNKMISC : ~[] >
 }
 
 <IN_SPATTR_LNK> TOKEN : {
