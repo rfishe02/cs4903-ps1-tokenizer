@@ -12,7 +12,7 @@ fi
 
 # TEST ON RANDOM FILE #
 
-if[ ${#@} > 2]
+if[ ${#@} > 2 ]
 then
 
     if [ -d "./in" ]
