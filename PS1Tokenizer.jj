@@ -326,7 +326,7 @@ TOKEN : {
 		("(")?(["0"-"9"]){2,5}(")")?< PSEP >(["0"-"9"]){5,8}
 	> { 
 		tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
-		if(length.length > 1) {
+		if(tmp.length > 1) {
             matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
         }
 	 }
