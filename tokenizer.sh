@@ -37,13 +37,18 @@ cat $2/*.txt > ./tokens.out
 
 tr -sc 'A-Za-z0-9' '\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
 
-cat frequency.txt | head -n 100 > top100.txt
-cat frequency.txt | tail -n 100 > bottom100.txt
+if [ -d "./results" ]
+then
+    rm -rf "./results"
+fi
+
+cat frequency.txt | head -n 100 > ./results/top100.txt
+cat frequency.txt | tail -n 100 > ./results/bottom100.txt
 
 for file in $2/*
 do
 F=`echo "$file" | sed 's/.*\///g'`
-tr -sc 'A-Za-z0-9' '\n' < $file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "top100$F"
+tr -sc 'A-Za-z0-9' '\n' < $file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 done
 
 rm *.java
