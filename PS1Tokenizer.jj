@@ -279,7 +279,11 @@ SKIP : {
 }
 
 <IN_SPATTR_LNK> SKIP : {
-	< SPATTRLNKMISC : ~[] >
+    < HTTPLNK2 : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","?","%","&"])+ >
+|   < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
+|   < HTTP2 : ((["a"-"z"])+|("chrome-extension")) ("://")+ >
+|   < PORT2 : ":"(["0"-"9"]){2,4} >
+|   < SPATTRLNKMISC : ~[] >
 }
 
 <IN_SPATTR_LNK> TOKEN : {
