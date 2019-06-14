@@ -249,7 +249,7 @@ SKIP : {
 
 SKIP : {
     < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
-|   < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"!--")(" ")* > : IN_SP_TAG
+|   < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"!--"|"time")(" ")* > : IN_SP_TAG
 |   < SELFCLOSETAG : "<" (" ")*("link"|"meta"|"i")(" ")* > : IN_SELFCLOSE_TAG
 |   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
@@ -265,6 +265,7 @@ SKIP : {
     < ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
 |   < ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
 |   < ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
+|   < ENDETAG : "<" (" ")*"/"(" ")* "time" > : DEFAULT
 |   < ENDCMT : "-->" > : DEFAULT
 |   < SPTAGMISC : ~[] >
 }
