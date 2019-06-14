@@ -307,7 +307,6 @@ SKIP : {
 <IN_HREF_LNK> SKIP : {
     < HTTPJNK2 : <HTTPJNK> >
 |   < HTTPLNK2 : <HTTPLNK> >
-|   < FILE2 : <FILE> >
 |   < HTTP2 : <HTTP> >
 |   < PORT2 : <PORT> >
 |   < ENDHTMLATTR : ("'"|"\"") > : DEFAULT
