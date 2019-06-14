@@ -18,4 +18,7 @@ tr -sc 'A-Za-z0-9' '\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r 
 
 rm *.java
 rm *.class
-#rm tokens.out
+rm tokens.out
+
+cat frequency.txt | head -n 100 > top100.txt
+cat frequency.txt | tail -n 100 > bottom100.txt
