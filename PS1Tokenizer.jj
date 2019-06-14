@@ -179,7 +179,7 @@ public class UATokenizer
 		type.equals("<ERA>")||
 		type.equals("<CROWDED>")||
 		type.equals("<CROWDED2>")||
-		type.equals("<WORD ")) {
+		type.equals("<WORD")) {
 		bw[4].write(fmt+"\n");
 		count[5]++;
 	  } else {
@@ -386,12 +386,11 @@ TOKEN : {
 	I *may* use this to deal with w o r d s l i k e t h e s e.
 */
 
-MORE :
-	{
+MORE : {
     < CONT : (["a"-"z","A"-"Z"])+ (< APS >|"-") > {
 	  cont = true;
     }
-| 	< BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
+|   < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
 }
 
 /* Deal with situations where terms are too close to tags.*/
