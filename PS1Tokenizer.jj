@@ -324,13 +324,12 @@ SKIP : {
 /*
 	Random patterns of human constructs. Price is necessary, but I'm not sure how useful
 	time and courses will be.
-	
-	removed 6-13-19
-	SKIP : {
-		< TIME : (["0"-"9"]){1,2}(":")( (["0"-"9"]){2}(":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2} >
-	}
-	
 */
+
+SKIP : {
+    < TIME : (["0"-"9"]){1,2}(":")( (["0"-"9"]){2}(":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2} >
+|   < DATE : (["0"-"9"]){2}(["-","."])(["0"-"9"]){2}(["-","."])(["0"-"9"]){4} >
+}
 
 TOKEN : {
     < ERA : (["0"-"9"]){2,4}< APS >"s" > { matchedToken.image = matchedToken.image.replaceAll(aps,""); }
