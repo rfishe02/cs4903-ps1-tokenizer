@@ -433,17 +433,19 @@ TOKEN : {
 */
 
 TOKEN : {
-	< WORD : ( ["a"-"z","A"-"Z"] | 
+	< WORD : 
+	( ["a"-"z","A"-"Z"] | 
 	( 
-	| "&#" (["0"-"9"]){3} ";"
+	"&#" (["0"-"9"]){3} ";"
 	| "&" 
 	( 
 	["e","E","i,"I,"o","O","a","u","U","n","N","A"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring")
 	| (["e","E"]|"sz")"lig"
 	| ("middot"|"eth"|"ETH"|"thorn"| "THORN") | "ord"["f","m"]";"
 	)
-	)+ > {
+	)+ > 
 	
+	{
 	  if(tagCt) {
   	    matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
 		tagCt = false;
@@ -452,7 +454,6 @@ TOKEN : {
 	    matchedToken.image = image.toString().replaceAll(aps,"");
 		cont=false;
 	  }
-	  
         }
 |	< BREV : ( ["a"-"z","A"-"Z","À"-"ú"]("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
   		matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
