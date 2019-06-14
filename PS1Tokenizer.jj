@@ -278,7 +278,7 @@ SKIP : {
 	< ENDPHP : "?>" > : DEFAULT
 }
 
-<IN_SPATTR_LNK> : {
+<IN_SPATTR_LNK> SKIP : {
 |   < SPATTRLNKMISC : ~[] >
 }
 
