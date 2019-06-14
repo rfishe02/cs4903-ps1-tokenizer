@@ -19,7 +19,7 @@ fi
 
 mkdir "./in"
 
-NAMES=$( ls /uafs/textmining/big | shuf -n 5 )
+NAMES=$( ls /uafs/textmining/big | shuf -n 25 )
 
 for n in $NAMES
 do
