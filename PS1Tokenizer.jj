@@ -284,8 +284,8 @@ SKIP : {
 }
 
 < IN_HTML_ATTR_SQ > SKIP : {
-	< ENDSPATTR : ("'"|">") > : DEFAULT
-|   < SPATTRMISC : ~[] >
+	< ENDSPATTR2 : ("'"|">") > : DEFAULT
+|   < SPATTRMISC2 : ~[] >
 }
 
 /*
@@ -364,12 +364,12 @@ MORE :
 /* Deal with situations where terms are too close to tags.*/
 
 TOKEN : {
-    < CROWDED : ">" ( (< CONT >)?(["a"-"z","A"-"Z"])+ |< REDDITU >) > {
+    < CROWDED : ">" ( (< CONT >)?(["a"-"z","A"-"Z"])+) > {
       	matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
 		matchedToken.image = matchedToken.image.replaceAll(aps,"");
 		
     }
-|   < CROWDED2 : ( (< CONT >)?(["a"-"z","A"-"Z"])+ |< REDDITU >) < CLOSETAG > > {
+|   < CROWDED2 : ( (< CONT >)?(["a"-"z","A"-"Z"])+) < CLOSETAG > > {
   		matchedToken.image = image.substring(0,image.indexOf("<"));
 		matchedToken.image = matchedToken.image.replaceAll(aps,"");
   		
