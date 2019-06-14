@@ -437,9 +437,9 @@ TOKEN : {
 	( ["a"-"z","A"-"Z"] | 
 	( 
 	"&#" (["0"-"9"]){3} ";" | "&" 
-	( ["e","E","i","I","o","O","a","u","U","n","N","A"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring")
+	( ["e","E","i","I","o","O","a","A","u","U","n","N"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring")
 	| (["e","E"]|"sz")"lig"
-	| ("middot"|"eth"|"ETH"|"thorn"|"THORN") | "ord"["f","m"] ) ";"
+	| ("middot"|"eth"|"ETH"|"thorn"|"THORN") | "ord"["f","m"] ) ";" )
 	)+ > 
 	{
 	  if(tagCt) {
