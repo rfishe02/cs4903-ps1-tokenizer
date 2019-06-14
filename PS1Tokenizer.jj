@@ -283,26 +283,27 @@ SKIP : {
 
 SKIP : {
     < SPATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") >
-|   < SPATTRLNK :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_SPATTR_LNK
+|   < SPATTRLNK :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
 |   < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
 |   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
 |   < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,4}";" > 
 }
 
-<IN_SPATTR_LNK> SKIP : {
+<IN_HREF_LNK> SKIP : {
     < HTTPLNK2 : ("/"|"./") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","?","%","&"])+ >
 |   < HTTP2 : ((["a"-"z"])+|("chrome-extension")) ("://")+ >
 |   < PORT2 : ":"(["0"-"9"]){2,4} >
 |   < SPATTRMISC: ~[] >
 }
 
-<IN_SPATTR_LNK> TOKEN : {
+<IN_HREF_LNK> TOKEN : {
     < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9"]){1}(["a"-"z","A"-"Z","0"-"9"])+(".") )+ (["a"-"z","A"-"Z","0"-"9"])+ > {
         
         tmp = image.toString().split("\\.");
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
         
     } : DEFAULT
+    < ENDHTMLATTR : ("'"|"\""|">") > : DEFAULT
 }
 
 < IN_HTMLATTR_DQ > SKIP : {
