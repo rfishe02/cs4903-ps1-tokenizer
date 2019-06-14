@@ -272,7 +272,7 @@ SKIP : {
 
 < IN_PHP > SKIP : {
     < ENDPHP : "?>" > : DEFAULT
-|   < PHP MISC : ~[] >
+|   < PHPMISC : ~[] >
 }
 
 /*
