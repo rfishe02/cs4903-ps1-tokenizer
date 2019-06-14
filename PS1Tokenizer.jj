@@ -242,7 +242,7 @@ TOKEN_MGR_DECLS : {
 SKIP : {
   < SPACE : (" "|"\t")+ >
 | < NEWLINE : ("\r"|"\n")+ >
-| < "&" ("copy"|"trade"|"deg"|"permil"|"ndash"|"mdash") ";" >
+| < SYMBOL : "&" ("#")?(["a"-"z","0"-"9"]){2,6} ";" >
 | < APS : ("'"|"’"|"\u2019"|"&#39;"|"&#44;"|"â€™"|"&#x27;") >
 | < PSEP : (["-"," ","."]|"&#45;"|"&#46;") > // Phone seperator.
 }
