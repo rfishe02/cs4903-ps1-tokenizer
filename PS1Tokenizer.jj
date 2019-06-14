@@ -296,12 +296,12 @@ SKIP : {
 
 <IN_ALT> SKIP : {
     < ENDALT : ("'"|"\""|">") > : DEFAULT
-|   < COMBALT : (["a"-"z","A"-"Z","0"-"9"])+ >
+|   < COMBALT : ( (["a"-"z","A"-"Z","0"-"9"])+(["0"-"9"])? )+ >
 |   < ALTMISC: ~[] >
 }
 
 <IN_ALT> TOKEN : {
-   < ALTWORD : (["a"-"z","A"-"Z"])+ >
+   < ALTWORD : (["a"-"z","A"-"Z","-"])+ >
 }
 
 <IN_HREF_LNK> SKIP : {
@@ -422,15 +422,12 @@ TOKEN : {
 	The next two tags are used to identify basic words / numbers.
 
 	removed 6-14-19
-	< BREV : (["A"-"Z"]("."|"&#46;")(" ")?)+ > {
-  		matchedToken.image = matchedToken.image.replaceAll("\\.","").trim();
-  	}
 	< TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){2,6} >
 */
 
 TOKEN : {
-  	< WORD : (["a"-"z","A"-"Z"])+ > {
-
+	< WORD : (["a"-"z","A"-"Z"])+ > {
+	
 	  if(tagCt) {
   	    matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
 		tagCt = false;
@@ -440,6 +437,9 @@ TOKEN : {
 		cont=false;
 	  }
 	  
+        }
+|	< BREV : ( ["a"-"z","A"-"Z"]("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
+  		matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
   	}
 }
 
