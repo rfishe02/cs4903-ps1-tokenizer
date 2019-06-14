@@ -179,7 +179,8 @@ public class UATokenizer
 		type.equals("<ERA>")||
 		type.equals("<CROWDED>")||
 		type.equals("<CROWDED2>")||
-		type.equals("<WORD>")) {
+		type.equals("<WORD>")||
+		type.equals("<BREV>")) {
 		bw[4].write(fmt+"\n");
 		count[5]++;
 	  } else {
