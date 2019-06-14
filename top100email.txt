@@ -1,0 +1,16 @@
+      4 com
+      2 mail
+      1 watson
+      1 uafs
+      1 songfacts
+      1 mail02box
+      1 mackey
+      1 ibm
+      1 gmail
+      1 feedback
+      1 example
+      1 edu
+      1 cis
+      1 1993apr05
+      1 174537
+      1 14962
