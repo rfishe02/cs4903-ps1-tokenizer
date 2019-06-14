@@ -1,9 +1,9 @@
 ======= Project Gengar Tokenization Summary =======
-Total tokens:             69413                                             
-Files processed:          12                                                
-Emails found:             5                                                 
-Domains found:            1258                                              
-Prices found:             72                                                
-Words found:              68050                                             
-Phone #s found:           28                                                
-Total runtime (seconds):  5.84                                              
+Total tokens:             57670180                                          
+Files processed:          44829                                             
+Emails found:             30449                                             
+Domains found:            4242655                                           
+Prices found:             73996                                             
+Words found:              35167504                                          
+Phone #s found:           141816                                            
+Total runtime (seconds):  1383.12                                           
