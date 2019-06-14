@@ -179,8 +179,8 @@ public class UATokenizer
 		type.equals("<ERA>")||
 		type.equals("<CROWDED>")||
 		type.equals("<CROWDED2>")||
-		type.equals("<WORD>")||
-		type.equals("<BREV>")) {
+		type.equals("<WORD>"))
+	  ) {
 		bw[4].write(fmt+"\n");
 		count[5]++;
 	  } else {
@@ -287,7 +287,6 @@ SKIP : {
     < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
 */
 
-/*
 SKIP : {
     < SPATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") > : IN_ALT
 |   < SPATTRLNK :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
@@ -320,7 +319,6 @@ SKIP : {
         
     } : DEFAULT
 }
-*/
 
 SKIP : {
 
