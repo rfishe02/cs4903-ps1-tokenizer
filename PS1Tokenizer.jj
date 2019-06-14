@@ -283,7 +283,7 @@ SKIP : {
 }
 
 <IN_SPATTR_LNK> TOKEN : {
-    < HTTPDOM : ( (["a"-"z","A"-"Z"]){1}(["a"-"z","A"-"Z"])+(".") )+ (["a"-"z","A"-"Z"])+ > {
+    < HTTPDOM2 : ( (["a"-"z","A"-"Z"]){1}(["a"-"z","A"-"Z"])+(".") )+ (["a"-"z","A"-"Z"])+ > {
         
         tmp = image.toString().split("\\.");
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
