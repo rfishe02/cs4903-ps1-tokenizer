@@ -291,8 +291,8 @@ SKIP : {
 */
 
 SKIP : {
-    < SPATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") > : IN_ALT
-|   < SPATTRLNK :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
+    < ALTATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") > : IN_ALT
+|   < HREFATTR :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
 }
 
 <IN_ALT> SKIP : {
@@ -306,8 +306,9 @@ SKIP : {
 }
 
 <IN_HREF_LNK> SKIP : {
-    < HTTPGBG : <HTTPJNK> >
-|   < HTTPHREF_SKP: <HTTPLNK> | <FILE> >
+    < HTTPJNK2 : <HTTPJNK> >
+|   < HTTPLNK2 : <HTTPLNK> >
+|   < FILE2 : <FILE2> >
 |   < HTTP2 : <HTTP> >
 |   < PORT2 : <PORT> >
 |   < ENDHTMLATTR : ("'"|"\""|">") > : DEFAULT
@@ -324,7 +325,6 @@ SKIP : {
 }
 
 SKIP : {
-
     < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
 |   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
 }
