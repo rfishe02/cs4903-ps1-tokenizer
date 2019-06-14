@@ -303,7 +303,7 @@ SKIP : {
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
         
     } : DEFAULT
-    < ENDHTMLATTR : ("'"|"\""|">") > : DEFAULT
+|   < ENDHTMLATTR : ("'"|"\""|">") > : DEFAULT
 }
 
 < IN_HTMLATTR_DQ > SKIP : {
