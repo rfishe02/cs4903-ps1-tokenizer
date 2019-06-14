@@ -296,12 +296,12 @@ SKIP : {
 
 <IN_ALT> SKIP : {
     < ENDALT : ("'"|"\""|">") > : DEFAULT
-|   < COMBALT : ["a"-"z","A"-"Z","0"-"9"] >
+|   < COMBALT : (["a"-"z","A"-"Z","0"-"9"])+ >
 |   < ALTMISC: ~[] >
 }
 
 <IN_ALT> TOKEN : {
-   < ALTWORD : ["a"-"z","A"-"Z"] >
+   < ALTWORD : (["a"-"z","A"-"Z"])+ >
 }
 
 <IN_HREF_LNK> SKIP : {
