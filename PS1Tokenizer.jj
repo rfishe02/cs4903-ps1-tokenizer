@@ -251,8 +251,9 @@ SKIP : {
 */
 
 SKIP : {
-	< OCTAG : "<" (" ")*("style"|"script"|"button"|"noscript"|"!--")(" ")* > : IN_OC_TAG
-| 	< OPTAG : "<" (" ")*("link"|"meta"|"i")(" ")* > : IN_OP_TAG
+    < OCTAG : "<" (" ")*("style"|"script"|"button"|"noscript"|"!--")" ")* > : IN_OC_TAG
+|   < OPTAG : "<" (" ")*("link"|"meta"|"i")(" ")* > : IN_OP_TAG
+|   < PHP : "<" (" ")*"?"(" ")*"php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","-"])+(["0"-"9"])?(" ")* >
 |   < CLOSETAG : "<" (" ")*"/"(" ")*(["a"-"z","A"-"Z","-"])+(["0"-"9"])?(" ")* >
 |   < HTMLATTR : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR_DQ
@@ -276,6 +277,10 @@ SKIP : {
 < IN_OP_TAG > SKIP : {
   	< ENDOPTAG : (">") > : DEFAULT
 |   < OPTAGMISC : ~[] >
+}
+
+< IN_PHP > SKIP : {
+	< ENDPHP : "?"(" ")*">" > : DEFAULT
 }
 
 < IN_HTML_ATTR_DQ > SKIP : {
