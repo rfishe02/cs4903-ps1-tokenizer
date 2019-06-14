@@ -297,7 +297,7 @@ SKIP : {
 }
 
 <IN_HREF_LNK> TOKEN : {
-    < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ ("a"-"z","A"-"Z","0"-"9","-"])+ > {
+    < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
         
         tmp = image.toString().split("\\.");
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
@@ -454,7 +454,7 @@ SKIP : {
 */
 
 TOKEN : {	
-    < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ ("a"-"z","A"-"Z","0"-"9","-"])+ > {
+    < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
         
         tmp = image.toString().split("\\.");
         matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
