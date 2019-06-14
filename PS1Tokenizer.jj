@@ -310,6 +310,7 @@ SKIP : {
 |   < HTTP2 : ( (["a"-"z"])+|"chrome-extension" )"://" >
 |   < PORT2 : ":"(["0"-"9"]){2,4} >
 |   < ENDHTMLATTR : ("'"|"\""|">") > : DEFAULT
+|   < SYMBOL2 : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,5}";" > 
 |   < SPATTRMISC: ~[] >
 }
 
