@@ -297,12 +297,12 @@ SKIP : {
 
 <IN_ALT> SKIP : {
     < ENDALT : ("'"|"\""|">") > : DEFAULT
-|   < COMBALT : ( (["a"-"z","A"-"Z","0"-"9"])+(["0"-"9"])? )+ >
+|   < COMBALT : ( (["a"-"z","A"-"Z","À"-"ú","0"-"9"])+(["0"-"9"])? )+ >
 |   < ALTMISC: ~[] >
 }
 
 <IN_ALT> TOKEN : {
-   < ALTWORD : (["a"-"z","A"-"Z","-"])+ >
+   < ALTWORD : (["a"-"z","A"-"Z","-","À"-"ú"])+ >
 }
 
 <IN_HREF_LNK> SKIP : {
@@ -399,7 +399,7 @@ TOKEN : {
 */
 
 MORE : {
-    < CONT : (["a"-"z","A"-"Z"])+ (< APS >|"-") > {
+    < CONT : (["a"-"z","A"-"Z","À"-"ú"])+ (< APS >|"-") > {
 	  cont = true;
     }
 |   < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
@@ -408,12 +408,12 @@ MORE : {
 /* Deal with situations where terms are too close to tags.*/
 
 TOKEN : {
-    < CROWDED : ">" ( (< CONT >)?(["a"-"z","A"-"Z"])+) > {
+    < CROWDED : ">" ( (< CONT >)?(["a"-"z","A"-"Z","À"-"ú"])+) > {
       	matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
 		matchedToken.image = matchedToken.image.replaceAll(aps,"");
 		
     }
-|   < CROWDED2 : ( (< CONT >)?(["a"-"z","A"-"Z"])+) < CLOSETAG > > {
+|   < CROWDED2 : ( (< CONT >)?(["a"-"z","A"-"Z","À"-"ú"])+) < CLOSETAG > > {
   		matchedToken.image = image.substring(0,image.indexOf("<"));
 		matchedToken.image = matchedToken.image.replaceAll(aps,"");
   		
@@ -428,7 +428,7 @@ TOKEN : {
 */
 
 TOKEN : {
-	< WORD : (["a"-"z","A"-"Z"])+ > {
+	< WORD : (["a"-"z","A"-"Z","À"-"ú"])+ > {
 	
 	  if(tagCt) {
   	    matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
@@ -440,7 +440,7 @@ TOKEN : {
 	  }
 	  
         }
-|	< BREV : ( ["a"-"z","A"-"Z"]("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
+|	< BREV : ( ["a"-"z","A"-"Z","À"-"ú"]("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
   		matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
   	}
 }
