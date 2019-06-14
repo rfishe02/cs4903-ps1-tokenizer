@@ -246,8 +246,7 @@ SKIP : {
 	The follwoing attempt to skip tags and certain attributes, such as style and
 	script tags that do not contribute useful information.
 	
-	removed 6-13-19
-	"href"| // SPATTR
+	removed "href" from SPATTR on 6-13-19
 */
 
 SKIP : {
@@ -255,11 +254,11 @@ SKIP : {
 |   < OPTAG : "<" (" ")*("link"|"meta"|"i")(" ")* > : IN_OP_TAG
 |   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
-|   < CLOSETAG : "<" (" ")*("/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+|(["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/")(" ")* >
+|   < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
 |   < SPATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") >
 |   < HTMLATTR : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR_DQ
 |   < HTMLATTR2 : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "'" > : IN_HTML_ATTR_SQ
-|   < SYMBOL : "&"("#")?(["a"-"z","A"-"Z","0"-"9"]){2,4}";" > 
+|   < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,4}";" > 
 }
 
 < IN_OC_TAG > SKIP : {
@@ -293,12 +292,13 @@ SKIP : {
 /*
 	Random patterns of human constructs. Price is necessary, but I'm not sure how useful
 	time and courses will be.
+	
+	removed 6-13-19
+	SKIP : {
+		< TIME : (["0"-"9"]){1,2}(":")( (["0"-"9"]){2}(":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2} >
+	}
+	
 */
-
-/* removed 6-13-19
-SKIP : {
-	< TIME : (["0"-"9"]){1,2}(":")( (["0"-"9"]){2}(":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2} >
-}*/
 
 TOKEN : {
     < ERA : (["0"-"9"]){2,4}< APS >"s" > { matchedToken.image = matchedToken.image.replaceAll(aps,""); }
@@ -379,12 +379,6 @@ TOKEN : {
 }
 
 /* Misc. site specific entities. */
-
-/* removed 6-13-19
-TOKEN : {
-    < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
-|	< USER : ("@"|"&#64;") (["a"-"z","A"-"Z","0"-"9"])+ >
-}*/
  
 TOKEN : {
   	< WORD : (["a"-"z","A"-"Z"])+ > {
@@ -417,6 +411,9 @@ SKIP : {
 /*
 	Skip parts of the url that may contribute more garbage than relevant information.
 	(I am 60% certain that this information isn't useful).
+	
+	removed 6-14-19
+ 	< HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"])+ >
 */
 
 SKIP : {
@@ -425,10 +422,6 @@ SKIP : {
 |   < HTTP : ((["a"-"z"])+|("chrome-extension")) ("://")+ >
 |   < PORT : ":"(["0"-"9"]){2,4} >
 }
-
-/* removed 6-14-19
- 	< HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"])+ >
-*/
 
 /*
 	Only retain HTML domains, parts of the url, email addresses that seem useful.
@@ -522,5 +515,9 @@ TOKEN : {
 	  } : DEFAULT
 | 	< C : ~[] > 
 }
+
+TOKEN : {
+    < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
+|	< USER : ("@"|"&#64;") (["a"-"z","A"-"Z","0"-"9"])+ >
 	
 -------------------------------*/
