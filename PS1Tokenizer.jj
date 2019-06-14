@@ -253,7 +253,7 @@ SKIP : {
 SKIP : {
     < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
 |   < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
-|   < SELFCLOSETAG : "<" (" ")*("link"|"meta"|"i"|"td"|"table"|"!")(" ")* > : IN_SELFCLOSE_TAG
+|   < SELFCLOSETAG : "<" (" ")*("link"|"meta"|"i"|"td"|"table"|"!"|"path")(" ")* > : IN_SELFCLOSE_TAG
 |   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
 |   < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
@@ -323,8 +323,8 @@ SKIP : {
 
 SKIP : {
 
-    < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
-|   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
+    < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
+|   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
 |   < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,5}";" > 
 }
 
