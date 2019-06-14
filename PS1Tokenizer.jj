@@ -253,7 +253,8 @@ SKIP : {
 |   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 |   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
 |   < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
-|   < SPATTR :  ("alt"|"href") (" ")*"="(" ")* ("\""|"'") >
+|   < SPATTR :  ("alt") (" ")*"="(" ")* ("\""|"'") >
+|   < SPATTRLNK :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_SPATTR_LNK
 |   < HTMLATTR : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "\"" > : IN_HTML_ATTR_DQ
 |   < HTMLATTR2 : (["a"-"z","A"-"Z","-","_"])+ (" ")*"="(" ")* "'" > : IN_HTML_ATTR_SQ
 |   < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,4}";" > 
@@ -275,6 +276,19 @@ SKIP : {
 
 < IN_PHP > SKIP : {
 	< ENDPHP : "?>" > : DEFAULT
+}
+
+<IN_SPATTR_LNK> : {
+|   < SPATTRLNKMISC : ~[] >
+}
+
+<IN_SPATTR_LNK> TOKEN : {
+    < HTTPDOM : ( (["a"-"z","A"-"Z"]){1}(["a"-"z","A"-"Z"])+(".") )+ (["a"-"z","A"-"Z"])+ > {
+        
+        tmp = image.toString().split("\\.");
+        matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+        
+    } : DEFAULT
 }
 
 < IN_HTML_ATTR_DQ > SKIP : {
