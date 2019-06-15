@@ -1,8 +1,7 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
  */
-options
-{
+options {
   static = false;
   LOOKAHEAD=1;
 }
@@ -28,12 +27,10 @@ public class UATokenizer {
       args[0] = "./input/test.txt";
       args[1] = "./output";
     }
-    
     run(args);
   }
 
   public static void run(String[] args) {
-
     File[] files;
     File[] zDir;
     File inDir;
@@ -43,7 +40,6 @@ public class UATokenizer {
     long start;
 
     try {
-    
       inDir = new File(args[0]);
       files = inDir.listFiles();
       
@@ -119,7 +115,6 @@ public class UATokenizer {
   }
 
   public static void closeWriters(BufferedWriter[] bw) {
-   
     try {
       for(BufferedWriter b : bw) {
         b.close();
@@ -130,7 +125,6 @@ public class UATokenizer {
   }
 
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
-
     try {
       String type = UATokenizer.tokenImage[t.kind];
       String fmt = t.image.toLowerCase();
@@ -457,7 +451,11 @@ TOKEN : {
 TOKEN : {	
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
     tmp = image.toString().split("\\.");
-    matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    if(tmp.length > 2) {
+      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    } else {
+      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    }
   }
 | < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","#","$","%","&","!","*","?"])+ (["="])? "@" ( (["a"-"z","A"-"Z"])+(".") )+ (["a"-"z","A"-"Z"])+ >
 }
