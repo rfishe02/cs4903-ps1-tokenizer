@@ -261,6 +261,7 @@ SKIP : {
   < ENDPRETAG : "<" (" ")*"/"(" ")* "pre" > : DEFAULT
 | < PREMISC : ~[] >
 }
+/*
 < IN_PRE_TAG > TOKEN : {
   < CODETOK : ["A"-"Z"](["a"-"z","A"-"Z"])+ (" ."(["a"-"z","A"-"Z"])+ )? > {
     tmp = image.toString().split("\\.");
@@ -268,7 +269,7 @@ SKIP : {
       matchedToken.image = tmp[0];
     }
   }
-}
+}*/
 
 /*
   Attempt to skip attributes that do not contribute useful information.
@@ -438,8 +439,8 @@ SKIP : {
 */
 
 SKIP : {
-  < HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"])+ >
-| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"," "])+ >
+  < HTTPJNK : ("&"|"?"|"%"|"=") (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^"])+ >
+| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^"," "])+ >
 | < HTTP : (["a"-"z"])+"://" >
 | < PORT : ":"(["0"-"9"]){4} >
 }
@@ -448,11 +449,15 @@ SKIP : {
   Only retain HTML domains, parts of the url, email addresses that seem useful.
 */
 
+TOKEN : {
+  < USER : "@" ("a"-"z","A"-"Z","0"-"9","_")+ >
+}
+
 TOKEN : {	
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
     tmp = image.toString().split("\\.");
     matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
   }
-| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ( (["a"-"z","A"-"Z"])+(".")? )+ >
+| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","#","$","%","&","!","*","?"])+ (["="])? "@" ( (["a"-"z","A"-"Z"])+(".")? )+ >
 }
 
