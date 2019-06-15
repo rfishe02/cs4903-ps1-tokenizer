@@ -193,7 +193,7 @@ TOKEN_MGR_DECLS : {
   String cSep = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
   String pSep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
   String pReg = "[\\s,\\.,-]";
-  String p = "-";
+  String p = " ";
   String w = ".";
   int wordEnd;
   int tagSt;
