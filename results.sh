@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if[ "${#@}" -gt "0" ]
+if [ "${#@}" -gt "0" ]
 then
 
     if [ -e "$1/other.txt" ] 
