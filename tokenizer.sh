@@ -53,6 +53,8 @@ mkdir "./results"
 cat frequency.txt | head -n 100 > ./results/top100.txt
 cat frequency.txt | tail -n 100 > ./results/bottom100.txt
 
+rm frequency.txt
+
 for file in $2/*
 do
 F=`echo "$file" | sed 's/.*\///g'`
@@ -63,4 +65,3 @@ done
 rm *.java
 rm *.class
 #rm -rf "./output"
-#rm tokens.out
