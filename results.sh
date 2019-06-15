@@ -26,7 +26,5 @@ F=`echo "$file" | sed 's/.*\///g'`
 tr -cd 'A-Za-z0-9\n' < $file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 done
 
-rm *.java
-rm *.class
 #rm -rf "./output"
 
