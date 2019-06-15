@@ -255,10 +255,11 @@ For now, only grab
 */
 
 SKIP : {
-  < PRETAG :  "<" (" ")*"pre"(" ")* > : IN_PRE_TAG
+  < PRETAG :  "<" (" ")*("pre"|"code")(" ")* > : IN_PRE_TAG
 }
 < IN_PRE_TAG > SKIP : {
   < ENDPRETAG : "<" (" ")*"/"(" ")* "pre" > : DEFAULT
+| < ENDCODETAG : "<" (" ")*"/"(" ")* "code" > : DEFAULT
 | < PREMISC : ~[] >
 }
 /*
