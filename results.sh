@@ -33,7 +33,7 @@ echo "creating top lists for each file"
 for file in $1/*
 do
 F=`echo "$file" | sed 's/.*\///g'`
-tr -cd 'A-Za-z0-9\n' < $file | tr A-Z a-z | sort | uniq -c | sort -T="./sort" -n -r | head -n 100 > "./results/top100$F"
+tr -d ".'-" < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T=./sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 done
 
 #rm -rf "./output"
@@ -43,3 +43,4 @@ done
 #tr -d ".'-" < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T=./sort | uniq -c | sort -n -r > frequency.txt
 #tr -d ".'-" < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T=./sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 
+#tr -cd 'A-Za-z0-9\n' < $file | tr A-Z a-z | sort | uniq -c | sort -T="./sort" -n -r | head -n 100 > "./results/top100$F"
