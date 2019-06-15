@@ -10,10 +10,10 @@ then
 fi
 mkdir "./sort"
 
-echo "creating freq.txt"
+#echo "creating freq.txt"
 
-cat $1/*.txt > ./tokens.out
-tr -cd 'A-Za-z0-9\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -T="./sort" -n -r > frequency.txt
+#cat $1/*.txt > ./tokens.out
+#tr -cd 'A-Za-z0-9\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -T="./sort" -n -r > frequency.txt
 
 if [ -d "./results" ]
 then
@@ -21,12 +21,12 @@ then
 fi
 mkdir "./results"
 
-echo "creating top and bottom lists"
+#echo "creating top and bottom lists"
 
-cat frequency.txt | head -n 100 > ./results/top100.txt
-cat frequency.txt | tail -n 100 > ./results/bottom100.txt
-rm tokens.out
-rm frequency.txt
+#cat frequency.txt | head -n 100 > ./results/top100.txt
+#cat frequency.txt | tail -n 100 > ./results/bottom100.txt
+#rm tokens.out
+#rm frequency.txt
 
 echo "creating top lists for each file"
 
