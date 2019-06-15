@@ -452,7 +452,7 @@ TOKEN : {
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
     tmp = image.toString().split("\\.");
     if(tmp.length > 2) {
-      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2];
     } else {
       matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
     }
