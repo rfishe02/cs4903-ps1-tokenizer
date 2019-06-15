@@ -249,6 +249,27 @@ SKIP : {
 | < PHPMISC : ~[] >
 }
 
+/* 
+Address text in code blocks 
+For now, only grab 
+*/
+
+SKIP : {
+  < PRETAG :  "<" (" ")*"pre"(" ")* > : IN_PRE_TAG
+}
+< IN_PRE_TAG > SKIP : {
+  < ENDPRETAG : "<" (" ")*"/"(" ")* "pre" > : DEFAULT
+| < PREMISC : ~[] >
+}
+< IN_PRE_TAG > TOKEN : {
+  < CODETOK : ["A"-"Z"](["a"-"z","A"-"Z"])+ (" ."(["a"-"z","A"-"Z"])+ )? > {
+    tmp = image.toString().split("\\.");
+    if(tmp.length > 1) {
+      matchedToken.image = tmp[0];
+    }
+  }
+}
+
 /*
   Attempt to skip attributes that do not contribute useful information.
   
