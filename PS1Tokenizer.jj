@@ -19,22 +19,17 @@ import java.io.FileWriter;
 import java.io.File;
 import java.io.InputStreamReader;
 
-public class UATokenizer
-{
-
+public class UATokenizer {
   static boolean test = false;
   
-  public static void main(String args[]) throws ParseException
-  {
-
+  public static void main(String args[]) throws ParseException {
     if(test) {
-		args = new String[2];
-    	args[0] = "./input/test.txt";
-    	args[1] = "./output";
+      args = new String[2];
+      args[0] = "./input/test.txt";
+      args[1] = "./output";
     }
-
-	run(args);
     
+    run(args);
   }
 
   public static void run(String[] args) {
@@ -42,201 +37,166 @@ public class UATokenizer
     File[] files;
     File[] zDir;
     File inDir;
-	String[] spl;
-	String filename;
-	int[] count = new int[7];
-	long start;
+    String[] spl;
+    String filename;
+    int[] count = new int[7];
+    long start;
 
-	try {
-
-	  	inDir = new File(args[0]);
-	  	files = inDir.listFiles();
-
-		File outDir = new File(args[1]);
-		if(!outDir.exists()) {
-			outDir.mkdir();
-	  	}
-	  	
-		BufferedWriter[] bw = getWriters(outDir);
-		start = System.currentTimeMillis();
-
-	  	if(files == null) {
-	  	 	processFile(bw,inDir,count); // Process a single file.
-			
-	  	} else {
-	  	  
-			for(File f : files) {
-            	
-                zDir = f.listFiles();
-                
-                if(zDir != null) {
-                    
-                    for(File z : zDir) {
-                        processFile(bw,z,count); // Process a file in a subdirectory.
-                    }
-                    
-                } else {
-                    processFile(bw,f,count); // Process multiple files.
-                }
-                
-	  		}
-	  		
-	  	}
-
-		closeWriters(bw);
-	  	printResults(count,start);
+    try {
+    
+      inDir = new File(args[0]);
+      files = inDir.listFiles();
+      
+      File outDir = new File(args[1]);
+      
+      if(!outDir.exists()) {
+        outDir.mkdir();
+      }
+      
+      BufferedWriter[] bw = getWriters(outDir);
+      start = System.currentTimeMillis();
+      
+      if(files == null) {
+        processFile(bw,inDir,count); // Process a single file.
+      } else {
+      
+        for(File f : files) {
+	  zDir = f.listFiles();
+	  
+	  if(zDir != null) {
+	  
+	    for(File z : zDir) {
+	      processFile(bw,z,count); // Process a file in a subdirectory.
+            }
+	    
+          } else {
+	    processFile(bw,f,count); // Process multiple files.
+          }
+        }
+      }
+      closeWriters(bw);
+      printResults(count,start);
 		
-	} catch(IOException ex) {
-	  	ex.printStackTrace();
-		System.exit(1);
-	}
-
+    } catch(IOException ex) {
+      ex.printStackTrace();
+      System.exit(1);
+    }
   }
 
   public static void processFile(BufferedWriter[] bw, File f, int[] count) throws IOException {
-
-	BufferedReader bis;
-	UATokenizer parser;
-	Token t;
-
-	bis = new BufferedReader(new InputStreamReader(new FileInputStream(f),"UTF-8"));
+    BufferedReader bis;
+    UATokenizer parser;
+    Token t;
+    
+    bis = new BufferedReader(new InputStreamReader(new FileInputStream(f),"UTF-8"));
     parser = new UATokenizer(bis);
-		
-	do {
-		t = parser.getNextToken();
-		recordToken(bw,t,count);
-
-	} while(t.kind != UATokenizerConstants.EOF);
-
-	bis.close();
-	count[1]++;
-
+    
+    do {
+      t = parser.getNextToken();
+      recordToken(bw,t,count);
+    } while(t.kind != UATokenizerConstants.EOF);
+    
+      bis.close();
+      count[1]++;
   }
   
   public static BufferedWriter[] getWriters(File inDir) {
-
-	BufferedWriter[] bw = null;
-
-	try {
-
-		String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
-		bw = new BufferedWriter[filenames.length];
-
-		for (int i = 0; i < filenames.length; i++) {
-		  	bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
-		}
-
-	} catch(IOException ex) {
-	  	ex.printStackTrace();
-		System.exit(1);
-	}
-
-	return bw;
-	
+    BufferedWriter[] bw = null;
+    
+    try {
+      String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
+      bw = new BufferedWriter[filenames.length];
+      
+      for (int i = 0; i < filenames.length; i++) {
+        bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
+      }
+      
+    } catch(IOException ex) {
+      ex.printStackTrace();
+      System.exit(1);
+    }
+    return bw;
   }
 
   public static void closeWriters(BufferedWriter[] bw) {
-
-	try {
-		for(BufferedWriter b : bw) {
-	  		b.close();
-		}
-	} catch(IOException ex) {
-		System.exit(1);
-	}
-	
+   
+    try {
+      for(BufferedWriter b : bw) {
+        b.close();
+      }
+    } catch(IOException ex) {
+      System.exit(1);
+    }
   }
 
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
 
-	//"tokens.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"
-	//"total","files","email","domain","price","word","phone"
-
-	try {
-
-	  String type = UATokenizer.tokenImage[t.kind];
-	  String fmt = t.image.toLowerCase();
-
-	  count[0]++; // Count number of tokens processed.
-	
-	  if(fmt.length() > 1) {
-	  	if(type.equals("<EMAIL>")) {
-			bw[1].write(fmt+"\n");
-			count[2]++;
+    try {
+      String type = UATokenizer.tokenImage[t.kind];
+      String fmt = t.image.toLowerCase();
+      
+      count[0]++; // Count number of tokens processed.
+      
+      if(fmt.length() > 1) {
+        if(type.equals("<EMAIL>")) {
+	  bw[1].write(fmt+"\n");
+	  count[2]++;
 		
-	  	} else if(type.equals("<HTTPDOM>")||type.equals("<HTTPDOM2>")) {
-			bw[2].write(fmt+"\n");
-			count[3]++;
+        } else if(type.equals("<HTTPDOM>")||type.equals("<HTTPDOM2>")) {
+	  bw[2].write(fmt+"\n");
+	  count[3]++;
 
-	  	} else if(type.equals("<PRICE>")) {
-			bw[3].write(fmt+"\n");
-			count[4]++;
+        } else if(type.equals("<PRICE>")) {
+	  bw[3].write(fmt+"\n");
+	  count[4]++;
 		
-	  	} else if(type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")) {
-			bw[5].write(fmt+"\n");
-			count[6]++;
+        } else if(type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")) {
+	  bw[5].write(fmt+"\n");
+	  count[6]++;
 		
-	  	} else if(type.equals("<COURSE>")||
-			type.equals("<ERA>")||
-			type.equals("<WORD>")||
-			type.equals("<CROWDED>")||
-			type.equals("<CROWDED2>")||
-			type.equals("<BREV>")) {
-			bw[4].write(fmt+"\n");
-			count[5]++;
-	  	} 
-	  } else {
-		bw[0].write(fmt+"\n"); // Write remaining tokens to a separate file.
-	  }
+        } else if(type.equals("<COURSE>")|| type.equals("<ERA>")|| type.equals("<WORD>")|| 
+	          type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>")) {
+          bw[4].write(fmt+"\n");
+	  count[5]++;
+        } 
+      } else {
+        bw[0].write(fmt+"\n"); // Write remaining tokens to a separate file.
+      }
 
-	} catch(IOException ex) {
-		System.exit(1);
-	}
-
+    } catch(IOException ex) {
+      System.exit(1);
+    }
   }
 
   public static void printResults(int[] count, long start) {
-
-	try {
-        
-        BufferedWriter bw = new BufferedWriter(new FileWriter("summary.txt"));
-     
-        String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
-
-        bw.write("======= Project Gengar Tokenization Summary =======\n");
-        
-        for(int i = 0; i < label.length; i++) {
-			//System.out.printf("%-25s %-50d\n",label[i],count[i]);
-            bw.write(String.format("%-25s %-50d\n",label[i],count[i]));
-        }
-        
-        //System.out.printf("%-25s %-50.2f","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0);
-        bw.write(String.format("%-25s %-50.2f\n","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0));
-        
-        bw.close();
-        
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("summary.txt"));
+      String[] label = {"Total tokens: ","Files processed: ","Emails found: ","Domains found: ","Prices found: ","Words found: ","Phone #s found:"};
+      
+      bw.write("======= Project Gengar Tokenization Summary =======\n");
+      for(int i = 0; i < label.length; i++) {
+        bw.write(String.format("%-25s %-50d\n",label[i],count[i]));
+      }
+      bw.write(String.format("%-25s %-50.2f\n","Total runtime (seconds): ",(System.currentTimeMillis()-start)/1000.0));
+      bw.close();
     } catch(IOException ex) {
-        System.exit(1);
+      System.exit(1);
     }
-
   }
-  
 }
 
 PARSER_END(UATokenizer)
 
 TOKEN_MGR_DECLS : {
 
-	int wordEnd;
-	int tagSt;
-	boolean tagCt;
-	boolean cont;
+  String[] tmp;
+  String aps = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
+  String psep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
+  int wordEnd;
+  int tagSt;
+  boolean tagCt;
+  boolean cont;
 
-	String aps = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
-	String psep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
-    
-    String[] tmp;
-	
 }
 
 SKIP : {
@@ -248,248 +208,233 @@ SKIP : {
 }
 
 /*
-    Attempt to skip tags that do not contribute useful information.
+  Attempt to skip tags that do not contribute useful information.
 */
 
 SKIP : {
-    < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
-|   < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
-|   < SELFCLOSETAG : "<" (" ")*("!"|"meta"|"link"|"i"|"td"|"table"|"path")(" ")* > : IN_SELFCLOSE_TAG
-|   < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
-|   < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
-|   < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
+  < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
+| < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
+| < SELFCLOSETAG : "<" (" ")*("!"|"meta"|"link"|"i"|"td"|"table"|"path")(" ")* > : IN_SELFCLOSE_TAG
+| < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
+| < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
+| < CLOSETAG : "<" (" ")*( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ | (["a"-"z","A"-"Z","0"-"9","-"])+(" ")*"/" )(" ")* >
 }
 
 < IN_SCRIPT_TAG > SKIP : {
-   < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-|  < SCRIPTTAGMISC : ~[] > 
+  < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+| < SCRIPTTAGMISC : ~[] > 
 }
 
 < IN_SP_TAG > SKIP : {
-    < ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
-|   < ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
-|   < ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
-|   < ENDETAG : "<" (" ")*"/"(" ")* "time" > : DEFAULT
-|   < SPTAGMISC : ~[] >
+  < ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
+| < ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
+| < ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
+| < ENDETAG : "<" (" ")*"/"(" ")* "time" > : DEFAULT
+| < SPTAGMISC : ~[] >
 }
 
 < IN_SELFCLOSE_TAG > SKIP : {
-    < ENDOPTAG : (">") > : DEFAULT
-|   < SELFCLOSEMISC : ~[] >
+  < ENDOPTAG : (">") > : DEFAULT
+| < SELFCLOSEMISC : ~[] >
 }
 
 < IN_PHP > SKIP : {
-    < ENDPHP : "?>" > : DEFAULT
-|   < PHPMISC : ~[] >
+  < ENDPHP : "?>" > : DEFAULT
+| < PHPMISC : ~[] >
 }
 
 /*
-    Attempt to skip attributes that do not contribute useful information.
-    
-    < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
-    < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,6}";" > 
+  Attempt to skip attributes that do not contribute useful information.
+  
+  < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
+  < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,6}";" > 
 */
 
 SKIP : {
-    < ALTATTR :  "alt" (" ")*"="(" ")* ("\""|"'") > : IN_ALT
-|   < HREFATTR :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
+  < ALTATTR :  "alt" (" ")*"="(" ")* ("\""|"'") > : IN_ALT
+| < HREFATTR :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
 }
 
 <IN_ALT> SKIP : {
-    < ENDALT : ("'"|"\"") > : DEFAULT
-|   < ALTMISC: ~[] >
+  < ENDALT : ("'"|"\"") > : DEFAULT
+| < ALTMISC: ~[] >
 }
 
 <IN_ALT> TOKEN : {
-   < ALTWORD : <WORD> >
+  < ALTWORD : <WORD> >
 }
 
 <IN_HREF_LNK> SKIP : {
-    < HTTPJNK2 : <HTTPJNK> >
-|   < HTTPLNK2 : <HTTPLNK> >
-|   < HTTP2 : <HTTP> >
-|   < PORT2 : <PORT> >
-|   < ENDHTMLATTR : ("'"|"\"") > : DEFAULT
-|   < SPATTRMISC: ~[] >
+  < HTTPJNK2 : <HTTPJNK> >
+| < HTTPLNK2 : <HTTPLNK> >
+| < HTTP2 : <HTTP> >
+| < PORT2 : <PORT> >
+| < ENDHTMLATTR : ("'"|"\"") > : DEFAULT
+| < SPATTRMISC: ~[] >
 }
 
 <IN_HREF_LNK> TOKEN : {
-    < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
-        
-        tmp = image.toString().split("\\.");
-        matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-        
-    } : DEFAULT
+  < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
+    tmp = image.toString().split("\\.");
+    matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+  } : DEFAULT
 }
 
 SKIP : {
-    < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
-|   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
+  < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
+| < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
 }
 
 < IN_HTMLATTR_DQ > SKIP : {
-    < ENDSPATTR : "\"" > : DEFAULT
-|   < HTMLATTRMISC1 : ~[] >
+  < ENDSPATTR : "\"" > : DEFAULT
+| < HTMLATTRMISC1 : ~[] >
 }
 
 < IN_HTMLATTR_SQ > SKIP : {
-    < ENDSPATTR2 : "'" > : DEFAULT
-|   < HTMLATTRMISC2 : ~[] >
+  < ENDSPATTR2 : "'" > : DEFAULT
+| < HTMLATTRMISC2 : ~[] >
 }
 
 /*
-	Random patterns of human constructs. Price is necessary, but I'm not sure how useful
-	time and courses will be.
+  Random patterns of human constructs. Price is necessary, but I'm not sure how useful
+  time and courses will be.
 */
 
 SKIP : {
-    < TIME : ( (["0"-"9"]){1,2} (":") ( (["0"-"9"]){2} (":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2}
-             |  (["0"-"9"]){2}":"(["0"-"9"]){2}" "(["A"-"Z"]){2} (" "(["A"-"Z"]){2})?
-    ) >
-|   < DATE : ( (["0"-"9"]){2}(["-","."])(["0"-"9"]){2}(["-","."])(["0"-"9"]){4}  
-             | (["0"-"9"]){2}(["-"," "])(["A"-"Z"]){3,4}(["-"," "])(["0"-"9"]){4}
-    )>
+  < TIME : ( (["0"-"9"]){1,2} (":") ( (["0"-"9"]){2} (":"|"&#58;")? )+ (" ")? (["a"-"z","A"-"Z"]){0,2}
+             |  (["0"-"9"]){2}":"(["0"-"9"]){2}" "(["A"-"Z"]){2} (" "(["A"-"Z"]){2})? ) >
+| < DATE : ( (["0"-"9"]){2}(["-","."])(["0"-"9"]){2}(["-","."])(["0"-"9"]){4}  
+             | (["0"-"9"]){2}(["-"," "])(["A"-"Z"]){3,4}(["-"," "])(["0"-"9"]){4})>
 }
 
 TOKEN : {
-    < ERA : (["0"-"9"]){2,4}< APS >"s" > { matchedToken.image = matchedToken.image.replaceAll(aps,""); }
-|   < COURSE : (["A"-"Z"]){2,4} (" ")? (["0"-"9"]){4} > { matchedToken.image = matchedToken.image.replaceAll(" ",""); }
-|   < PRICE : ["$","£","¥"](" ")*( (["0"-"9"]){1,3}(",")? )+ ( "."(["0"-"9"])+ )? > // Need to add unicode & html symb?
+  < ERA : (["0"-"9"]){2,4}< APS >"s" > { matchedToken.image = matchedToken.image.replaceAll(aps,""); }
+| < COURSE : (["A"-"Z"]){2,4} (" ")? (["0"-"9"]){4} > { matchedToken.image = matchedToken.image.replaceAll(" ",""); }
+| < PRICE : ["$","£","¥"](" ")*( (["0"-"9"]){1,3}(",")? )+ ( "."(["0"-"9"])+ )? > // Need to add unicode & html symb?
 }
 
 /*
-	Uses a grouping based approach to identify phone numbers. The most popular numbers internationally followed
-	groupings of 3-3-3, 3-3-4, 3-2-2, 2-2-2, or 5-8, which were preceded by some codes.
-
-	Also provides a distinction between IP Addresses and phone numbers, or certain numbers.
+  Uses a grouping based approach to identify phone numbers. The most popular numbers internationally followed
+  groupings of 3-3-3, 3-3-4, 3-2-2, 2-2-2, or 5-8, which were preceded by some codes.
+  
+  Also provides a distinction between IP Addresses and phone numbers, or certain numbers.
 */
 
 SKIP : {
-    < IP : ( ( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2} ) ){1} ( ["."]( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2})){3} ("/" ( ("08"){1}| "16" | "2"(["4"-"9"]){1}|"32"))? >
+  < IP : ( ( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2} ) ){1} ( ["."]( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2})){3} ("/" ( ("08"){1}| "16" | "2"(["4"-"9"]){1}|"32"))? >
 }
 
 TOKEN : {
- 	< PHONE34 : (  ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,3}(")")?< PSEP > )?  ("(")?(["0"-"9"]){1,4}(")")?< PSEP >  )?
-		(["0"-"9"]){3,4}< PSEP >(["0"-"9"]){3,4}
-	> { 
-		tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
-		if(tmp.length > 1) {
-            matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
-        }
-	}
-| 	< PHONE32 : (  ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,4}(")")?< PSEP > )?  ("(")?(["0"-"9"]){2,4}(")")?< PSEP >  )?
-		(["0"-"9"]){2,3}< PSEP >  (["0"-"9"]){2}< PSEP >(["0"-"9"]){2}
-	> { 
-		tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
-		if(tmp.length > 2) {
-            matchedToken.image = tmp[tmp.length-3] + tmp[tmp.length-2] + tmp[tmp.length-1];
-        }
-	 }
-|   < PHONE58 : (  ("+"|"&#43;")?(["0"-"9"]){1,2}< PSEP >  )?
-		("(")?(["0"-"9"]){2,5}(")")?< PSEP >(["0"-"9"]){5,8}
-	> { 
-		tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
-		if(tmp.length > 1) {
-            matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
-        }
-	 }
+  < PHONE34 : ( ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,3}(")")?< PSEP > )?  ("(")?(["0"-"9"]){1,4}(")")?< PSEP > )?
+		(["0"-"9"]){3,4}< PSEP >(["0"-"9"]){3,4} > { 
+    tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
+    if(tmp.length > 1) {
+      matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
+    }
+  }
+| < PHONE32 : ( ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,4}(")")?< PSEP > )?  ("(")?(["0"-"9"]){2,4}(")")?< PSEP > )?
+		(["0"-"9"]){2,3}< PSEP >  (["0"-"9"]){2}< PSEP >(["0"-"9"]){2} > { 
+    tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
+    if(tmp.length > 2) {
+      matchedToken.image = tmp[tmp.length-3] + tmp[tmp.length-2] + tmp[tmp.length-1];
+    }
+  }
+| < PHONE58 : (  ("+"|"&#43;")?(["0"-"9"]){1,2}< PSEP >  )?
+		("(")?(["0"-"9"]){2,5}(")")?< PSEP >(["0"-"9"]){5,8} > { 
+    tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
+    if(tmp.length > 1) {
+      matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
+    }
+  }
 }
 
 /*
-	The following sections attempt to grab combined words/ tricky numbers.
-	(Contractions, formatted numbers, or odd puntuation).
+  The following sections attempt to grab combined words/ tricky numbers.
+  (Contractions, formatted numbers, or odd puntuation).
 
-	It may pass through MORE once, or twice.
-	Eventually, it's classified as WORD or NUMBER when it reaches the
-	following regex expressions.
+  It may pass through MORE once, or twice.
+  Eventually, it's classified as WORD or NUMBER when it reaches thE following regex expressions.
 
-	I *may* use this to deal with w o r d s l i k e t h e s e.
+  I *may* use this to deal with w o r d s l i k e t h e s e.
 */
 
 MORE : {
-    < CONT : <WORD> (< APS >|"-") > {
-	  cont = true;
-    }
-|   < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
+  < CONT : <WORD> (< APS >|"-") > {
+    cont = true;
+  }
+| < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
 }
 
 /* Deal with situations where terms are too close to tags.*/
 
 TOKEN : {
-    < CROWDED : ">" (< CONT >)? <WORD> > {
-      	matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
-		matchedToken.image = matchedToken.image.replaceAll(aps,"");
+  < CROWDED : ">" (< CONT >)? <WORD> > {
+    matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
+    matchedToken.image = matchedToken.image.replaceAll(aps,"");
 		
-    }
-|   < CROWDED2 : (< CONT >)? <WORD> < CLOSETAG > > {
-  		matchedToken.image = image.substring(0,image.indexOf("<"));
-		matchedToken.image = matchedToken.image.replaceAll(aps,"");
-  		
-    }
+  }
+| < CROWDED2 : (< CONT >)? <WORD> < CLOSETAG > > {
+    matchedToken.image = image.substring(0,image.indexOf("<"));
+    matchedToken.image = matchedToken.image.replaceAll(aps,"");		
+  }
 }
 
 /* 
-	The next two tags are used to identify basic words / numbers.
-
-	removed 6-14-19
-	< TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){2,6} >
+  The next two tags are used to identify basic words / numbers.
+  
+  removed 6-14-19
+  < TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){2,6} >
 */
 
 TOKEN : {
-	< WORD : 
-	( ["a"-"z","A"-"Z"] ( "&#" (["0"-"9"]){3} ";"
-	| "&" (
-	["e","E","i","I","o","O","a","A","u","U","n","N"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring") 
-	| (["e","E"]|"sz")"lig" 
-	| ("middot"|"eth"|"ETH"|"thorn"|"THORN") 
-	"ord"["f","m"] ) ";" )? )+
-	> 
-	{
-	  if(tagCt) {
-  	    matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
-		tagCt = false;
-	  }
-	  if(cont) {
-	    matchedToken.image = image.toString().replaceAll(aps,"");
-		cont=false;
-	  }
-        }
-|	< BREV : ( ["A"-"Z"] ("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
-  		matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
-  	}
+  < WORD : ( ["a"-"z","A"-"Z"] ( "&#" (["0"-"9"]){3} ";"
+  | "&" ( ["e","E","i","I","o","O","a","A","u","U","n","N"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring") 
+  | (["e","E"]|"sz")"lig" 
+  | ("middot"|"eth"|"ETH"|"thorn"|"THORN") 
+  | "ord"["f","m"] ) ";" )? )+ > {
+      if(tagCt) {
+        matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
+	tagCt = false;
+      }
+      if(cont) {
+        matchedToken.image = image.toString().replaceAll(aps,"");
+	cont=false;
+      }
+    }
+| < BREV : ( ["A"-"Z"] ("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
+    matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
+  }
 }
 
 SKIP : {
-   	< NUMBER : (["0"-"9"])+>
-| 	< MISC: ~[] >
+  < NUMBER : (["0"-"9"])+>
+| < MISC: ~[] >
 }
 
 /*
-	Skip parts of the url that may contribute more garbage than relevant information.
-	
-	removed 6-14-19
- 	("/"|"./") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","?","%","&","^"])+
-	< FILE : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
+  Skip parts of the url that may contribute more garbage than relevant information.
+  
+  removed 6-14-19
+  ("/"|"./") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","?","%","&","^"])+
+  < FILE : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
 */
 
 SKIP : {
-    < HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"])+ >
-|   < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"," "])+ >
-|   < HTTP : ( (["a"-"z"])+|"chrome-extension" )"://" >
-|   < PORT : ":"(["0"-"9"]){2,4} >
+  < HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"])+ >
+| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"," "])+ >
+| < HTTP : ( (["a"-"z"])+|"chrome-extension" )"://" >
+| < PORT : ":"(["0"-"9"]){2,4} >
 }
 
 /*
-	Only retain HTML domains, parts of the url, email addresses that seem useful.
+  Only retain HTML domains, parts of the url, email addresses that seem useful.
 */
 
 TOKEN : {	
-    < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
-        
-        tmp = image.toString().split("\\.");
-        matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-        
-    }
-|   < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ((["a"-"z","A"-"Z"])+(".")?)+ > // Fix, because it can't start or end with certain things?
+  < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
+    tmp = image.toString().split("\\.");
+    matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+  }
+| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ((["a"-"z","A"-"Z"])+(".")?)+ > // Fix, because it can't start or end with certain things?
 }
 
