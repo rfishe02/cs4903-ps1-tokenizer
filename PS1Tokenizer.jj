@@ -190,7 +190,7 @@ PARSER_END(UATokenizer)
 TOKEN_MGR_DECLS : {
 
   String[] tmp;
-  String aps = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
+  String csep = "('|’|\u2019|&#39;|&#44;|&#x27;|-|&#45;)";
   String psep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
   int wordEnd;
   int tagSt;
@@ -202,8 +202,13 @@ TOKEN_MGR_DECLS : {
 SKIP : {
   < SPACE : (" "|"\t")+ >
 | < NEWLINE : ("\r"|"\n")+ >
+| < ENGSYMB : "&" ( "#"(["0"-"9"]){3}
+  | (["a","A","e","E","i","I","o","O","u","U","n","N"]|"sz"|"ord") 
+    ("acute"|"cedil"|"circ"|"grave"|"lig"|"slash"|"tilde"|"uml"|"ring"|["f","m"]) 
+  | ("middot"|"eth"|"ETH"|"thorn"|"THORN") 
+  ) ";" >
 | < SYMBOL : "&" ("#")?(["a"-"z","0"-"9"]){2,6} ";" >
-| < APS : ("'"|"’"|"\u2019"|"&#39;"|"&#44;"|"â€™"|"&#x27;") >
+| < CSEP : ("'"|"’"|"\u2019"|"&#39;"|"&#44;"|"â€™"|"&#x27;") >
 | < PSEP : (["-"," ","."]|"&#45;"|"&#46;") > // Phone seperator.
 }
 
@@ -308,7 +313,7 @@ SKIP : {
 }
 
 TOKEN : {
-  < ERA : (["0"-"9"]){2,4}< APS >"s" > { matchedToken.image = matchedToken.image.replaceAll(aps,""); }
+  < ERA : (["0"-"9"]){2,4}< CSEP >"s" > { matchedToken.image = matchedToken.image.replaceAll(csep,""); }
 | < COURSE : (["A"-"Z"]){2,4} (" ")? (["0"-"9"]){4} > { matchedToken.image = matchedToken.image.replaceAll(" ",""); }
 | < PRICE : ["$","£","¥"](" ")*( (["0"-"9"]){1,3}(",")? )+ ( "."(["0"-"9"])+ )? > // Need to add unicode & html symb?
 }
@@ -325,15 +330,19 @@ SKIP : {
 }
 
 TOKEN : {
-  < PHONE34 : ( ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,3}(")")?< PSEP > )?  ("(")?(["0"-"9"]){1,4}(")")?< PSEP > )?
-		(["0"-"9"]){3,4}< PSEP >(["0"-"9"]){3,4} > { 
+
+  < PHONEFI : ("+"|"&#43;") < PSEP > > 
+  < PHONESE : ("(")?(["0"-"9"]){1,4}(")")? < PSEP > >
+  
+  < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
+              (["0"-"9"]){3,4}< PSEP > (["0"-"9"]){3,4} > { 
     tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
     if(tmp.length > 1) {
-      matchedToken.image = tmp[tmp.length-2] + tmp[tmp.length-1];
+      matchedToken.image = tmp[tmp.length-2] +"-"+ tmp[tmp.length-1];
     }
   }
-| < PHONE32 : ( ( ("+"|"&#43;")?("(")?(["0"-"9"]){1,4}(")")?< PSEP > )?  ("(")?(["0"-"9"]){2,4}(")")?< PSEP > )?
-		(["0"-"9"]){2,3}< PSEP >  (["0"-"9"]){2}< PSEP >(["0"-"9"]){2} > { 
+| < PHONE32 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
+		(["0"-"9"]){2,3}< PSEP > (["0"-"9"]){2}< PSEP > (["0"-"9"]){2} > { 
     tmp = image.toString().replaceAll(psep,"").split("[\\s,\\.,-]");
     if(tmp.length > 2) {
       matchedToken.image = tmp[tmp.length-3] + tmp[tmp.length-2] + tmp[tmp.length-1];
@@ -359,9 +368,7 @@ TOKEN : {
 */
 
 MORE : {
-  < CONT : <WORD> (< APS >|"-") > {
-    cont = true;
-  }
+  < CONT : <WORD> (< CSEP >|"-") > { /*cont = true;*/ }
 | < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
 }
 
@@ -370,12 +377,12 @@ MORE : {
 TOKEN : {
   < CROWDED : ">" (< CONT >)? <WORD> > {
     matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
-    matchedToken.image = matchedToken.image.replaceAll(aps,"");
+    matchedToken.image = matchedToken.image.replaceAll(csep,"");
 		
   }
 | < CROWDED2 : (< CONT >)? <WORD> < CLOSETAG > > {
     matchedToken.image = image.substring(0,image.indexOf("<"));
-    matchedToken.image = matchedToken.image.replaceAll(aps,"");		
+    matchedToken.image = matchedToken.image.replaceAll(csep,"");		
   }
 }
 
@@ -387,19 +394,15 @@ TOKEN : {
 */
 
 TOKEN : {
-  < WORD : ( ["a"-"z","A"-"Z"] ( "&#" (["0"-"9"]){3} ";"
-  | "&" ( ["e","E","i","I","o","O","a","A","u","U","n","N"] ("acute"|"uml"|"cedil"|"circ"|"grave"|"slash"|"tilde"|"ring") 
-  | (["e","E"]|"sz")"lig" 
-  | ("middot"|"eth"|"ETH"|"thorn"|"THORN") 
-  | "ord"["f","m"] ) ";" )? )+ > {
+  < WORD : ( ["a"-"z","A"-"Z"] ( < ENGSYMB > )? )+ > {
       if(tagCt) {
         matchedToken.image = image.toString(); // If this word had odd punctuation, return the modfied image.
 	tagCt = false;
       }
-      if(cont) {
-        matchedToken.image = image.toString().replaceAll(aps,"");
+      /*if(cont) {
+        matchedToken.image = image.toString().replaceAll(csep,"");
 	cont=false;
-      }
+      }*/
     }
 | < BREV : ( ["A"-"Z"] ("&#46;"|["0"-"9",".","-"])(" ")? )+ > {
     matchedToken.image = matchedToken.image.replaceAll("(\\.|-)","").trim();
@@ -422,8 +425,8 @@ SKIP : {
 SKIP : {
   < HTTPJNK : ("&"|"?"|"%") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"])+ >
 | < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","^"," "])+ >
-| < HTTP : ( (["a"-"z"])+|"chrome-extension" )"://" >
-| < PORT : ":"(["0"-"9"]){2,4} >
+| < HTTP : (["a"-"z"])+"://" >
+| < PORT : ":"(["0"-"9"]){4} >
 }
 
 /*
@@ -435,6 +438,6 @@ TOKEN : {
     tmp = image.toString().split("\\.");
     matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
   }
-| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ((["a"-"z","A"-"Z"])+(".")?)+ > // Fix, because it can't start or end with certain things?
+| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","=","#","$","%","&","!","*","?"])+ "@" ( (["a"-"z","A"-"Z"])+(".")? )+ >
 }
 
