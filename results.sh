@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mv $1/other.txt $1/other.out
+mv "$1/other.txt" "$1/other.out"
 
 cat $1/*.txt > ./tokens.out
 
