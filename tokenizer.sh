@@ -19,14 +19,14 @@ then
     then
         rm -rf "./in"
     fi
-
     mkdir "./in"
 
-    NAMES=$( ls /uafs/textmining/big | shuf -n $3 )
+    #/uafs/textmining/big
+    NAMES=$( ls $1 | shuf -n $3 )
 
     for n in $NAMES
     do
-        F=$( find /uafs/textmining/big -name $n)
+        F=$( find $1 -name $n)
         cp $F "./in"
     done
 
@@ -42,13 +42,12 @@ fi
 cat $2/*.txt > ./tokens.out
 
 #tr -d ".'-" < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
-tr -cd 'A-Za-z0-9\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
+tr -cd 'A-Za-z0-9\n.-' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
 
 if [ -d "./results" ]
 then
     rm -rf "./results"
 fi
-
 mkdir "./results"
 
 cat frequency.txt | head -n 100 > ./results/top100.txt
