@@ -41,7 +41,7 @@ fi
 
 cat $2/*.txt > ./tokens.out
 
-tr -sc 'A-Za-z0-9' '\n' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
+ tr -d ".-" < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
 
 if [ -d "./results" ]
 then
@@ -61,5 +61,5 @@ done
 
 rm *.java
 rm *.class
-rm -rf "./output"
-rm tokens.out
+#rm -rf "./output"
+#rm tokens.out
