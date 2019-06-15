@@ -43,7 +43,7 @@ cat $2/*.txt > ./tokens.out
 
 #tr -d ".'-" < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
 #tr -cd 'A-Za-z0-9\n.-' < tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
-tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
+cat tokens.out | tr A-Z a-z | sort | uniq -c | sort -n -r > frequency.txt
 
 if [ -d "./results" ]
 then
@@ -59,7 +59,7 @@ do
 F=`echo "$file" | sed 's/.*\///g'`
 #tr -d ".'-" < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 #tr -cd 'A-Za-z0-9\n.-' < $file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
-$file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
+cat $file | tr A-Z a-z | sort | uniq -c | sort -n -r | head -n 100 > "./results/top100$F"
 done
 
 rm *.java
