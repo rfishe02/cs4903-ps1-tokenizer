@@ -10,7 +10,7 @@ then
     rm -rf "./output"
 fi
 
-# TEST ON RANDOM FILE #
+# TEST ON RANDOM FILES #
 
 if [ "${#@}" -gt "2" ]
 then

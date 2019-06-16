@@ -5,35 +5,33 @@ then
 
     # CREATE NECESSARY DIRECTORIES
     
-    if [ -d "./results" ]
+    R="./results"
+    S="./sort"
+    
+    if [ -d $R ]
     then
-        rm -rf "./results"
+        rm -rf $R
     fi
     
-    if [ -d "../sort" ]
+    if [ -d $S ]
     then
-        rm -rf "./.sort"
+        rm -rf $S
     fi
    
-    mkdir "./results"
-    mkdir "../sort"
+    mkdir $R
+    mkdir $S
+
+    # SORT & CREATE TOP & BOTTOM 100 LISTS
     
-    if [ -e "$1/other.txt" ] 
-    then
-        mv "$1/other.txt" "$1/other.out"
-    fi
+    echo "combining output files"
 
-    # SORT & CREATE TOP & BOTTOM 100 LISTS, MINUS OTHER.TXT
-    
-    echo "combining .txt files"
+    cat $1/*.out > ./tokens.out
+    tr -cd 'A-Za-z0-9\n' < tokens.out | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r > frequency.txt
 
-    cat $1/*.txt > ./tokens.out
-    tr -cd 'A-Za-z0-9\n' < tokens.out | tr A-Z a-z | sort -T "../sort" | uniq -c | sort -T "../sort" -n -r > frequency.txt
+    echo "creating top and bottom lists for all"
 
-    echo "creating top and bottom lists"
-
-    cat frequency.txt | head -n 100 > ./results/top100.txt
-    cat frequency.txt | tail -n 100 > ./results/bottom100.txt
+    cat frequency.txt | head -n 150 > ./results/top.txt
+    cat frequency.txt | tail -n 150 > ./results/bottom.txt
     
     rm tokens.out
     rm frequency.txt
@@ -42,17 +40,20 @@ then
 
     echo "creating top lists for each file"
 
-    for file in $1/*
+    for file in $1/*.txt
     do
         F=`echo "$file" | sed 's/.*\///g'`
-        tr -cd 'A-Za-z0-9\n' < $file | tr A-Z a-z | sort -T "./sort" | uniq -c | sort -T "./sort" -n -r | head -n 100 > "./results/top100$F"
+        tr -cd 'A-Za-z0-9\n' < $file | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r | head -n 150 > "$R/top$F"
     done
 
-    rm -rf "../sort"
-    #rm -rf "./output"
+    rm -rf $S
+
+    echo "done"
     
 fi
 
 #MISC
 #tr -d ".'-" < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T "./sort" | uniq -c | sort -T "./sort" -n -r > frequency.txt
 #tr -d ".'-" < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T=./sort | uniq -c | sort -T "./sort" -n -r | head -n 100 > "./results/top100$F"
+
+

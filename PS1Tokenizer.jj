@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 
 public class UATokenizer {
+    
   static boolean test = false;
   
   public static void main(String args[]) throws ParseException {
@@ -31,6 +32,7 @@ public class UATokenizer {
   }
 
   public static void run(String[] args) {
+    BufferedWriter bw2;
     File[] files;
     File[] zDir;
     File inDir;
@@ -53,21 +55,28 @@ public class UATokenizer {
       start = System.currentTimeMillis();
       
       if(files == null) {
-        processFile(bw,inDir,count); // Process a single file.
+        bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+inDir.getName()+".out"));
+        processFile(bw,bw2,inDir,count); // Process a single file.
+        bw2.close();
       } else {
       
         for(File f : files) {
-	  zDir = f.listFiles();
-	  
-	  if(zDir != null) {
-	  
-	    for(File z : zDir) {
-	      processFile(bw,z,count); // Process a file in a subdirectory.
-            }
+            
+            zDir = f.listFiles();
+            
+            if(zDir != null) {
+                
+                for(File z : zDir) {
+                    bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+z.getName()+".out"));
+                    processFile(bw,bw2,z,count); // Process a files in a subdirectory.
+                    bw2.close();
+                }
 	    
-          } else {
-	    processFile(bw,f,count); // Process multiple files.
-          }
+            } else {
+                bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+f.getName()+".out"));
+                processFile(bw,bw2,f,count); // Process multiple files.
+                bw2.close();
+            }
         }
       }
       closeWriters(bw);
@@ -78,25 +87,8 @@ public class UATokenizer {
       System.exit(1);
     }
   }
-
-  public static void processFile(BufferedWriter[] bw, File f, int[] count) throws IOException {
-    BufferedReader bis;
-    UATokenizer parser;
-    Token t;
-    
-    bis = new BufferedReader(new InputStreamReader(new FileInputStream(f),"UTF-8"));
-    parser = new UATokenizer(bis);
-    
-    do {
-      t = parser.getNextToken();
-      recordToken(bw,t,count);
-    } while(t.kind != UATokenizerConstants.EOF);
-    
-      bis.close();
-      count[1]++;
-  }
   
-  public static BufferedWriter[] getWriters(File inDir) {
+    public static BufferedWriter[] getWriters(File inDir) {
     BufferedWriter[] bw = null;
     
     try {
@@ -124,6 +116,26 @@ public class UATokenizer {
     }
   }
 
+  public static void processFile(BufferedWriter[] bw, BufferedWriter bw2, File f, int[] count) throws IOException {
+    BufferedReader bis;
+    UATokenizer parser;
+    Token t;
+    
+    bis = new BufferedReader(new InputStreamReader(new FileInputStream(f),"UTF-8"));
+    parser = new UATokenizer(bis);
+    
+    do {
+      t = parser.getNextToken();
+      
+      bw2.write(t.image.toLowerCase()+"\n");
+      recordToken(bw,t,count);
+      
+    } while(t.kind != UATokenizerConstants.EOF);
+    
+      bis.close();
+      count[1]++;
+  }
+  
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
