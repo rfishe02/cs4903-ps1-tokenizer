@@ -309,7 +309,11 @@ SKIP : {
 <IN_HREF_LNK> TOKEN : {
   < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
     tmp = image.toString().split("\\.");
-    matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    if(tmp.length > 2) {
+      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2];
+    } else {
+      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    }
   } : DEFAULT
 }
 
