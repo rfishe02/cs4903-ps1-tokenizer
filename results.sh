@@ -26,7 +26,7 @@ then
     echo "combining output files"
 
     cat $1/*.out > ./tokens.out
-    tr -cd 'A-Za-z0-9\n' < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r > frequency.txt
+    tr -cd 'A-Za-z0-9\n@.-' < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r > frequency.txt
 
     echo "creating top and bottom lists for all"
 
@@ -43,7 +43,7 @@ then
     for file in $1/*.txt
     do
         F=`echo "$file" | sed 's/.*\///g'`
-        tr -cd 'A-Za-z0-9\n' < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r | head -n 150 > "$R/top$F"
+        tr -cd 'A-Za-z0-9\n.-' < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r | head -n 150 > "$R/top$F"
     done
 
     rm -rf $S
