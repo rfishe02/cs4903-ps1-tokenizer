@@ -7,3 +7,5 @@ grep "width" ./in/* | head -n 100
 cat ./results/top100word.txt
 
 ./tokenizer.sh input output 1000
+
+./tokenizer.sh /uafs/textmining/big output 500
