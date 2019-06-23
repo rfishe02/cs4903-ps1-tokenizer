@@ -142,14 +142,22 @@ public class UATokenizer {
       String fmt = t.image.toLowerCase();
       //String fmt = t.image.toLowerCase()+" "+type;
       
+      boolean email = type.equals("<EMAIL>")||type.equals("<DQEMAIL>")||type.equals("<SQEMAIL>")||type.equals("<JSONEMAILSQ>")||type.equals("<JSONEMAILDQ>");
+      
+      boolean dom = type.equals("<HTTPDOM>")||type.equals("<SQDOM>")||type.equals("<DQDOM>")||type.equals("<JSONDOMSQ>")||type.equals("<JSONDOMDQ>");
+      
+      boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSONPHONESQ>")||type.equals("<JSONPHONEDQ>");
+      
+      boolean word = type.equals("<WORD>")|| type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("JSONWORDSQ")|| type.equals("JSONWORDDQ");
+      
       count[0]++; // Count number of tokens processed.
       
       if(fmt.length() > 1) {
-        if(type.equals("<EMAIL>")||type.equals("<EMAIL2>")) {
+        if(email) {
             bw[1].write(fmt+"\n");
             count[2]++;
 		
-        } else if(type.equals("<HTTPDOM>")||type.equals("<HTTPDOM2>")) {
+        } else if(dom) {
             bw[2].write(fmt+"\n");
             count[3]++;
 
@@ -157,11 +165,11 @@ public class UATokenizer {
             bw[3].write(fmt+"\n");
             count[4]++;
 		
-        } else if(type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")) {
+        } else if(phone) {
             bw[5].write(fmt+"\n");
             count[6]++;
 		
-        } else if(type.equals("<ALTWORD>")|| type.equals("<WORD>")|| type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<DOCSQWRD>") || type.equals("<DOCDQWRD>")) {
+        } else if(word) {
             bw[4].write(fmt+"\n");
             count[5]++;
         } else {
@@ -228,6 +236,7 @@ SKIP : {
       ("acute"|"cedil"|"circ"|"grave"|"lig"|"slash"|"tilde"|"uml"|"ring"|["f","m"]) 
     | ("middot"|"eth"|"ETH"|"thorn"|"THORN") ) ";" >
 | < SYMBOL : "&" ("#")?(["a"-"z","0"-"9"]){2,12} ";" >
+| < ALPHA : (["a"-"z","A"-"Z"] | ("\\u00"["4"-"7"]["0"-"9","A"-"F"]) | ("\\u00"["A"-"F"]["0"-"9","A"-"F"]) ) >
 }
 
 /* ============================================================================================
@@ -236,27 +245,90 @@ SKIP : {
  
  ============================================================================================ */
 
+// Tags we'll enter and either tokenize, or skip altogther.
+
 SKIP : {
-  < SCRIPTTAG :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_TAG
+  < SCRIPTTAG :  "<" (" ")*"script"(" ")* "type="(" ")*("\""|"'") (" ")*(["a"-"z"])+("/json")(("+")?["a"-"z"])+ (" ")*("\""|"'") > : IN_JSON 
+| < SCRIPTTAG2 :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_SK 
 | < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
-| < SELFCLOSETAG : "<" (" ")*("!"|"meta"|"td"|"table"|"path")(" ")* > : IN_SELFCLOSE_TAG
+| < PRETAG :  "<" (" ")*("pre"|"code")(" ")* > : IN_PRE_TAG
 | < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
-| < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* >
-| < CLOSETAG : "<" (" ")* ( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ 
-               | (["a"-"z","A"-"Z","0"-"9","-"])+ (" ")*"/" ) (" ")* >
+}
+
+< IN_SP_TAG > SKIP : {
+  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"button"|"noscript"|"time") > : DEFAULT
+| < SPTAGMISC : ~[] >
+}
+< IN_PRE_TAG > SKIP : {
+  < ENDPRETAG : "<" (" ")*"/"(" ")* ("pre"|"code") > : DEFAULT
+| < PREMISC : ~[] >
+}
+< IN_PHP > SKIP : {
+  < ENDPHP : "?>" > : DEFAULT
+| < PHPMISC : ~[] >
 }
 
 /* --------------------------------------------------------------------------------------------
  
-   When we enter a script tag, only save the words that lie between document.write( ) code.
+   When we enter a script tag, use different tokenization techniques depending on the type.
  
  -------------------------------------------------------------------------------------------- */
 
-< IN_SCRIPT_TAG > SKIP : {
+/* script type = "application/ld+json"{ "":"", }
+//  * "name" : [ "...
+ * "text"
+ */
+
+< IN_JSON > SKIP : {
+  < ENDJSON : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+| < JSONSQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
+| < JSONDQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
+| < JSONMISC : ~[] > 
+}
+
+< IN_JSONSQ > SKIP : {
+  < ENDJSONSQ : "'" > : IN_JSON
+| < JSONSQMISC : ~[] > 
+}
+< IN_JSONSQ > TOKEN : {
+  < JSONWORDSQ : <WORD> >
+| < JSONEMAILSQ : <EMAIL> >
+| < JSONDOMSQ : <HTTPDOM> >
+| < JSONPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
+}
+
+< IN_JSONDQ > SKIP : {
+  < ENDJSONDQ : "\"" > : IN_JSON
+| < JSONDQMISC : ~[] > 
+}
+< IN_JSONDQ > TOKEN : {
+  < JSONWORDDQ : <WORD> >
+| < JSONEMAILDQ : <EMAIL> >
+| < JSONDOMDQ : <HTTPDOM> >
+| < JSONPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
+}
+
+/* The procedure for all other types of scripts, like JavaScript. */
+
+< IN_SCRIPT_SK > SKIP : {
   < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| < DOCWRITE : "document.write" (" ")* ["("] > : IN_DOC
 | < SCRIPTTAGMISC : ~[] > 
 }
+
+/*
+
+Incomplete technique for dealing the information in JavaScript.
+ 
+| < DOCWRITE : "document.write" (" ")* ["("] > : IN_DOC
+type.equals("<DOCSQWRD>") ||
+type.equals("<DOCDQWRD>")||
+
+< IN_SCRIPT_TAG > SKIP : {
+  < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+| < INJSON : "json" > : IN_JSON
+| < SCRIPTTAGMISC : ~[] > 
+}
+
 <IN_DOC> SKIP : {
   < ENDDOC : ");" > : IN_SCRIPT_TAG 
 | < STDOCSQ : ["'"] > : IN_DOC_SQ
@@ -295,88 +367,69 @@ SKIP : {
   < ENDDOCDQTAG : [">"] > : IN_DOC_DQ
 | < DOCDQTGMISC : ~[] > 
 }
-
-/* --------------------------------------------------------------------------------------------
- 
-   These are specific tags that we'll skip completely.
- 
- -------------------------------------------------------------------------------------------- */
-
-< IN_SP_TAG > SKIP : {
-  < ENDATAG : "<" (" ")*"/"(" ")* "style" > : DEFAULT
-| < ENDCTAG : "<" (" ")*"/"(" ")* "button" > : DEFAULT
-| < ENDDTAG : "<" (" ")*"/"(" ")* "noscript" > : DEFAULT
-| < ENDETAG : "<" (" ")*"/"(" ")* "time" > : DEFAULT
-| < SPTAGMISC : ~[] >
-}
-< IN_PHP > SKIP : {
-  < ENDPHP : "?>" > : DEFAULT
-| < PHPMISC : ~[] >
-}
-< IN_SELFCLOSE_TAG > SKIP : {
-  < ENDOPTAG : (">") > : DEFAULT
-| < SELFCLOSEMISC : ~[] >
-}
-
-/* Skip code between PRE and CODE tags. The biggest issue with these tags is that 
- * they may contain distinct terms.
- */
-
-SKIP : {
-  < PRETAG :  "<" (" ")*("pre"|"code")(" ")* > : IN_PRE_TAG
-}
-< IN_PRE_TAG > SKIP : {
-  < ENDPRETAG : "<" (" ")*"/"(" ")* "pre" > : DEFAULT
-| < ENDCODETAG : "<" (" ")*"/"(" ")* "code" > : DEFAULT
-| < PREMISC : ~[] >
-}
+*/
 
 /* ============================================================================================
  
    Skip the contents of HTML attributes that may contain unhelpful information, such 
    as style definitions.
+   
+   These unintentionally create a small amount of garbage, especially the 
+   one meant to find HTML links.
  
  ============================================================================================ */
 
+/*
+ * "content"
+ */
+
 SKIP : {
-  < ALTATTR : ("alt"|"title") (" ")*"="(" ")* ("\""|"'") > : IN_ALT
-| < HREFATTR :  "href" (" ")*"="(" ")* ("\""|"'") > : IN_HREF_LNK
+  < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* > : IN_OPEN_TAG
+| < CLOSETAG : "<" (" ")* ( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ 
+               | (["a"-"z","A"-"Z","0"-"9","-"])+ (" ")*"/" ) (" ")* >
+}
+< IN_OPEN_TAG > SKIP : {
+  < ENDOPTAG : (">") > : DEFAULT
+| < SQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < OPENMISC : ~[] >
 }
 
 // The alt tag may contain useful descriptive information.
 
-<IN_ALT> SKIP : {
-  < ENDALT : ("'"|"\"") > : DEFAULT
-| < ALTMISC: ~[] >
+<IN_SQ> SKIP : {
+  < ENDSQ : ("'") > : IN_OPEN_TAG
+| < SQJNK : <HTTPJNK> >
+| < SQLNK : <HTTPLNK> >
+| < SQHTTP : <HTTP> >
+| < SQPORT : <PORT> >
+| < SQMISC: ~[] >
 }
-<IN_ALT> TOKEN : {
-  < ALTWORD : <WORD> > { }
+<IN_SQ> TOKEN : {
+  < SQDOM : <HTTPDOM> >
+| < SQEMAIL : <EMAIL> >
 }
+<IN_SQ> SKIP : {
+  < SQWORD : <WORD> >
+} // Change to token when it works better.
 
-// This graps links within HREF. This may create redundant links to parts within the website.
-
-<IN_HREF_LNK> SKIP : {
-  < HTTPJNK2 : <HTTPJNK> >
-| < HTTPLNK2 : <HTTPLNK> >
-| < HTTP2 : <HTTP> >
-| < PORT2 : <PORT> >
-| < ENDHTMLATTR : ("'"|"\"") > : DEFAULT
-| < SPATTRMISC: ~[] >
+<IN_DQ> SKIP : {
+  < ENDDQ : ("\"") > : IN_OPEN_TAG
+| < DQJNK : <HTTPJNK> >
+| < DQLNK : <HTTPLNK> >
+| < DQHTTP : <HTTP> >
+| < DQPORT : <PORT> >
+| < DQMISC : ~[] >
 }
-<IN_HREF_LNK> TOKEN : {
-  < HTTPDOM2 : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
-    /*tmp = image.toString().split("\\.");
-    if(tmp.length > 2) {
-      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    } else {
-      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    }*/
-  }
-| < EMAIL2 : <EMAIL> >
+<IN_DQ> TOKEN : {
+  < DQDOM : <HTTPDOM> >
+| < DQEMAIL : <EMAIL> >
 }
+<IN_DQ> SKIP : {
+  < DQWORD : <WORD> >
+} // Change to token when it works better.
 
-// If we're in a basic tag, use a double quote or single quote depending on the syntax.
-
+/*
 SKIP : {
   < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
 | < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
@@ -388,7 +441,7 @@ SKIP : {
 < IN_HTMLATTR_DQ > SKIP : {
   < ENDSPATTR : "\"" > : DEFAULT
 | < HTMLATTRMISC1 : ~[] >
-}
+}*/
 
 /* ============================================================================================
  
@@ -417,10 +470,13 @@ TOKEN : {
  
  -------------------------------------------------------------------------------------------- */
 
-TOKEN : {
+SKIP : {
   < PHONEFI : ("+"|"&#43;") < PSEP > > 
 | < PHONESE : ("(")?(["0"-"9"]){1,4}(")")? < PSEP > >
-| < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
+}
+
+TOKEN : {
+  < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
               (["0"-"9"]){3,4}< PSEP > (["0"-"9"]){3,4} > { 
     /*tmp = image.toString().replaceAll(pSep,"").split(pReg);
     if(tmp.length > 1) {
@@ -483,7 +539,7 @@ TOKEN : {
  -------------------------------------------------------------------------------------------- */
 
 TOKEN : {
-  < WORD : ( ["a"-"z","A"-"Z"] ( < ENGSYMB > )? )+ > {
+  < WORD : ( < ALPHA > ( < ENGSYMB > )? )+ > {
       if(tagCt) {
         matchedToken.image = image.toString(); // If this word had punctuation, return the modfied image.
         tagCt = false;
@@ -496,7 +552,7 @@ TOKEN : {
       }*/
       
     }
-| < BREV : ( ["A"-"Z","a"-"z"] ("&#46;"|["0"-"9","."]) ){1,6} ["A"-"Z","a"-"z"] > {
+| < BREV : ( < ALPHA > ("&#46;"|["0"-"9","."]) ){1,6} < ALPHA > > {
     matchedToken.image = matchedToken.image.replaceAll("(\\.-)","").trim();
   }
 }
@@ -513,8 +569,8 @@ SKIP : {
  ============================================================================================ */
 
 SKIP : {
-  < HTTPJNK : ("&"|"?") (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^","%","="])+ >
-| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^"," "])+ >
+  < HTTPJNK : ("&"|"?") (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^","%","=","#"])+ >
+| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_",";",":","+","^","#"," "])+ >
 | < HTTP : (["a"-"z"])+"://" >
 | < PORT : ":"(["0"-"9"]){4} >
 }
