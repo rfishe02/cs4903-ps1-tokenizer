@@ -27,7 +27,7 @@ then
     if [ "${#@}" -gt "3" ] 
     then 
 
-        FILES=$( grep -lE $4 "$1/*" | shuf -n $3  )
+        FILES=$( grep -lE $4 "$1/"* | shuf -n $3  )
         
         for f in $FILES
         do
