@@ -57,7 +57,5 @@ else
     echo "TOO MANY FILES GIVEN"
 fi
 
-
-
 #rm *.java
 #rm *.class
