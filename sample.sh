@@ -20,10 +20,10 @@ then
 
     echo "sampling each $EXT file in $IN"
 
-    for file in "$IN/"*$EXT
+    for file in "$IN/"*"$EXT"
     do
         F=`echo "$file" | sed 's/.*\///g'`
-        cat $file | shuf -n $K > "$OUT/uniq_$F"
+        cat $file | shuf -n $K > "$OUT/$F"
     done
     
     echo "wrote $K samples to $OUT"
