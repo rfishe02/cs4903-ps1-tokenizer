@@ -228,8 +228,9 @@ SKIP : {
 | < NEWLINE : ("\r"|"\n")+ >
 | < CSEP : ("'"|"’"|"\u2019"|"â€™"|"&#x27;"|"&#" (["3"-"4"]){2} ";") > // Contraction seperator.
 | < PSEP : (["-"," ","."]|"&#8722;"|"&#46;") > // Phone seperator. 
-| < HTTPSYM : [",",".","-","_",";",":","+","^","%","#","="," ","@"] >
-| < EMAILSYM : ["_",".","+","-","#","$","%","&","!","*","?","^","*"] >
+| < HTTPSYM : [",","-","_",";",":","+","^","%","#","=","@"] >
+| < LINKSYM : [",","-","_",";",":","+","^","%","#","=","@"," "]>
+| < EMAILSYM : ["!","#","$","%","^","&","*","_","+","=","-"] >
 }
 
 SKIP : {
@@ -284,8 +285,8 @@ SKIP : {
 
 < IN_JSON > SKIP : {
   < ENDJSON : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| < JSONSQ : ("description"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
-| < JSONDQ : ("description"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
+| < JSONSQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
+| < JSONDQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
 | < JSONMISC : ~[] > 
 }
 
@@ -385,9 +386,6 @@ type.equals("<DOCDQWRD>")||
 /*
  * "content"
  * "title"
- * | < SQLNK : <HTTPLNK> >
- * | < DQLNK : <HTTPLNK> >
- * 
  */
 
 SKIP : {
@@ -402,8 +400,8 @@ SKIP : {
 }
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"href") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"href"|"title") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"href"|"title") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -412,6 +410,7 @@ SKIP : {
 <IN_SQ> SKIP : {
   < ENDSQ : ("'") > : IN_OPEN_TAG
 | < SQJNK : <HTTPJNK> >
+| < SQLNK : <HTTPLNK> >
 | < SQHTTP : <HTTP> >
 | < SQPORT : <PORT> >
 | < SQMISC: ~[] >
@@ -424,6 +423,7 @@ SKIP : {
 <IN_DQ> SKIP : {
   < ENDDQ : ("\"") > : IN_OPEN_TAG
 | < DQJNK : <HTTPJNK> >
+| < DQLNK : <HTTPLNK> >
 | < DQHTTP : <HTTP> >
 | < DQPORT : <PORT> >
 | < DQMISC : ~[] >
@@ -554,14 +554,14 @@ SKIP : {
 /* ============================================================================================
  
    Skip parts of the url that may contribute more garbage than relevant information.
-   | < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9"," "]|<HTTPSYM>)+ >
- 
+
  ============================================================================================ */
 
 SKIP : {
-  < HTTPJNK : ["&","?","/"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>){1,2} )+ (<HTTPDOM>|"." ("php"|"html"|"png"|"jpeg") )  >
+  < HTTPJNK : ["&","?"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>){1,2} )+ (<HTTPDOM> |"." ("php"|"html"|"png"|"jpeg") )?  >
+| < HTTPLNK : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>){1,2} )+ (<HTTPDOM> |"." ("php"|"html"|"png"|"jpeg") )? >
 | < HTTP : (["a"-"z"])+"://" >
-| < PORT : ":"(["0"-"9"]){4} >
+| < PORT : ":"(["0"-"9"]){4,8} >
 }
 
 /*
