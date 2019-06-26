@@ -148,7 +148,7 @@ public class UATokenizer {
       
       boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSONPHONESQ>")||type.equals("<JSONPHONEDQ>");
       
-      boolean word = type.equals("<WORD>")|| type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("JSONWORDSQ")|| type.equals("JSONWORDDQ");
+      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("JSONWORDSQ")|| type.equals("JSONWORDDQ");
       
       count[0]++; // Count number of tokens processed.
       
@@ -228,7 +228,8 @@ SKIP : {
 | < NEWLINE : ("\r"|"\n")+ >
 | < CSEP : ("'"|"’"|"\u2019"|"â€™"|"&#x27;"|"&#" (["3"-"4"]){2} ";") > // Contraction seperator.
 | < PSEP : (["-"," ","."]|"&#8722;"|"&#46;") > // Phone seperator. 
-| < HTTPSYM : [".","-","_",";",":","+","^","%","#","="] >
+| < HTTPSYM : [",",".","-","_",";",":","+","^","%","#","="," ","@"] >
+| < EMAILSYM : ["_",".","+","-","#","$","%","&","!","*","?","^","*"] >
 }
 
 SKIP : {
@@ -276,14 +277,15 @@ SKIP : {
  -------------------------------------------------------------------------------------------- */
 
 /* script type = "application/ld+json"{ "":"", }
-//  * "name" : [ "...
+ * "name" : [ "...
  * "text"
+ * "title"
  */
 
 < IN_JSON > SKIP : {
   < ENDJSON : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| < JSONSQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
-| < JSONDQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
+| < JSONSQ : ("description"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
+| < JSONDQ : ("description"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
 | < JSONMISC : ~[] > 
 }
 
@@ -382,17 +384,26 @@ type.equals("<DOCDQWRD>")||
 
 /*
  * "content"
+ * "title"
+ * | < SQLNK : <HTTPLNK> >
+ * | < DQLNK : <HTTPLNK> >
+ * 
  */
 
 SKIP : {
-  < OPENTAG : "<" (" ")*(["a"-"z","A"-"Z","0"-"9","-"])+(" ")* > : IN_OPEN_TAG
+  < CMTTAG : "<" (" ")*( "!" )(" ")* > : IN_CMT_TAG
+| < OPENTAG : "<" (" ")*( (["a"-"z","A"-"Z","0"-"9","-"])+ )(" ")* > : IN_OPEN_TAG
 | < CLOSETAG : "<" (" ")* ( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ 
                | (["a"-"z","A"-"Z","0"-"9","-"])+ (" ")*"/" ) (" ")* >
 }
+< IN_CMT_TAG > SKIP : {
+  < ENDCMTTAG : (">") > : DEFAULT
+| < CMTMISC : ~[] >
+}
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"href") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -401,7 +412,6 @@ SKIP : {
 <IN_SQ> SKIP : {
   < ENDSQ : ("'") > : IN_OPEN_TAG
 | < SQJNK : <HTTPJNK> >
-| < SQLNK : <HTTPLNK> >
 | < SQHTTP : <HTTP> >
 | < SQPORT : <PORT> >
 | < SQMISC: ~[] >
@@ -410,14 +420,10 @@ SKIP : {
   < SQDOM : <HTTPDOM> >
 | < SQEMAIL : <EMAIL> >
 }
-<IN_SQ> SKIP : {
-  < SQWORD : <WORD> >
-} // Change to token when it works better.
 
 <IN_DQ> SKIP : {
   < ENDDQ : ("\"") > : IN_OPEN_TAG
 | < DQJNK : <HTTPJNK> >
-| < DQLNK : <HTTPLNK> >
 | < DQHTTP : <HTTP> >
 | < DQPORT : <PORT> >
 | < DQMISC : ~[] >
@@ -426,9 +432,6 @@ SKIP : {
   < DQDOM : <HTTPDOM> >
 | < DQEMAIL : <EMAIL> >
 }
-<IN_DQ> SKIP : {
-  < DQWORD : <WORD> >
-} // Change to token when it works better.
 
 /*
 SKIP : {
@@ -503,29 +506,17 @@ TOKEN : {
 /* ============================================================================================
  
    REGEX USED TO COLLECT WORDS.
-   THE FOLLOW REGEX MAY GRAB COMBINED WORDS / TRICKY NUMBERS.
  
  ============================================================================================ */
 
-/* The tokenizer may pass through MORE once or twice. Eventually, the segment
- * will be classified as a WORD or NUMBER.
- */
-
-MORE : {
-  < CONT : <WORD> (< CSEP >|"-") > { /*cont = true;*/ }
-| < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
-}
-
-// Deals with situations where terms are too close to tags.
-
 TOKEN : {
-  < CROWDED : ">" (< CONT >)? <WORD> > {
+  < CROWDED : ">" (<WORD>|<CONT>) > {
     matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
     
     //matchedToken.image = matchedToken.image.replaceAll(cSep,"");
     
   }
-| < CROWDED2 : (< CONT >)? <WORD> < CLOSETAG > > {
+| < CROWDED2 : (<WORD>|<CONT>) < CLOSETAG > > {
     matchedToken.image = image.substring(0,image.indexOf("<"));
     
     //matchedToken.image = matchedToken.image.replaceAll(cSep,"");	
@@ -540,12 +531,12 @@ TOKEN : {
  -------------------------------------------------------------------------------------------- */
 
 TOKEN : {
-  < WORD : ( < ALPHA > ( < ENGSYMB > )? )+ > {
-      if(tagCt) {
-        matchedToken.image = image.toString(); // If this word had punctuation, return the modfied image.
-        tagCt = false;
-      }
-      
+  < BREV : ( < ALPHA > ("&#46;"|["0"-"9","."]) )+ < ALPHA > ("&#46;"|["0"-"9","."]) > {
+    //matchedToken.image = matchedToken.image.replaceAll("(\\.-)","").trim();
+  }
+| < CONT : ( < ALPHA > ( < ENGSYMB >| < CSEP > | "-" )? )+ ( < ALPHA > )+ >
+| < WORD : (< ALPHA >)+ > {
+
       /*
       if(cont) {
         matchedToken.image = image.toString().replaceAll(cSep,"");
@@ -553,9 +544,6 @@ TOKEN : {
       }*/
       
     }
-| < BREV : ( < ALPHA > ("&#46;"|["0"-"9","."]) ){1,6} < ALPHA > > {
-    matchedToken.image = matchedToken.image.replaceAll("(\\.-)","").trim();
-  }
 }
 
 SKIP : {
@@ -566,23 +554,22 @@ SKIP : {
 /* ============================================================================================
  
    Skip parts of the url that may contribute more garbage than relevant information.
+   | < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9"," "]|<HTTPSYM>)+ >
  
  ============================================================================================ */
 
 SKIP : {
-  < HTTPJNK : ("&"|"?") (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>)+ <HTTPDOM>  >
-| < HTTPLNK : "/" (["a"-"z","A"-"Z","0"-"9"," "]|<HTTPSYM>)+ >
+  < HTTPJNK : ["&","?","/"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>){1,2} )+ (<HTTPDOM>|"." ("php"|"html"|"png"|"jpeg") )  >
 | < HTTP : (["a"-"z"])+"://" >
 | < PORT : ":"(["0"-"9"]){4} >
 }
-
 
 /*
   Only retain HTML domains, parts of the url, email addresses that seem useful.
 */
 
 TOKEN : {	
-  < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9","-"]){1}(["a"-"z","A"-"Z","0"-"9","-"])+(".") )+ (["a"-"z","A"-"Z","0"-"9","-"])+ > {
+  < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
     /*tmp = image.toString().split("\\.");
     if(tmp.length > 2) {
       matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
@@ -590,9 +577,8 @@ TOKEN : {
       matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
     }*/
   }
-| < EMAIL : (["a"-"z","A"-"Z","0"-"9","_",".","+","-","#","$","%","&","!","*","?","^","*"])+ 
-            (["a"-"z","A"-"Z","0"-"9","_",".","+","-","#","$","%","&","!","*","?","^","*","="])?
-            "@" ( (["a"-"z","A"-"Z"])+(".") )+ (["a"-"z","A"-"Z"])+ > {
+| < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
+            "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
     /*tmp = image.toString().split("\\.");
     matchedToken.image = tmp[tmp.length-1];*/
   }

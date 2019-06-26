@@ -117,3 +117,24 @@ TOKEN : {
     < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
     < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,6}";" > 
  */
+ 
+/* The tokenizer may pass through MORE once or twice. Eventually, the segment
+ * will be classified as a WORD or NUMBER.
+ */
+ 
+ /*
+MORE : {
+  < CONT : <WORD> (< CSEP >|"-") >
+| < BIGNUM : (["0"-"9"])+(","|"&#44;"|"."|"&#46;") >
+}*/
+
+// Deals with situations where terms are too close to tags.
+// (< CONT >)? 
+
+      if(tagCt) {
+        matchedToken.image = image.toString(); // If this word had punctuation, return the modfied image.
+        tagCt = false;
+      }
+      
+      
+
