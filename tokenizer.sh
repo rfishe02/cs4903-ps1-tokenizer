@@ -19,43 +19,36 @@ mkdir "./in"
 # TEST ON RANDOM SUBSET, RANDOM FILES, OR WHOLE DIRECTORY #
 # <INPUT DIR> <OUTPUT DIR> <NUM FILES> <REGEX>
 
-#SIZE=$( ls $1 | wc -l )
+if [ "${#@}" -gt "3" ] 
+then 
 
-if [ $3 -lt 10000 ] 
+    FILES=$( grep -lE $4 "$1/"* | shuf -n $3  )
+        
+    for f in $FILES
+    do
+        cp $f "./in"
+    done
+        
+    time java UATokenizer "./in" $2
+
+elif [ "${#@}" -gt "2" ]
 then
-    
-    if [ "${#@}" -gt "3" ] 
-    then 
 
-        FILES=$( grep -lE $4 "$1/"* | shuf -n $3  )
-        
-        for f in $FILES
-        do
-            cp $f "./in"
-        done
-        
-        time java UATokenizer "./in" $2
+    NAMES=$( ls $1 | shuf -n $3 )
 
-    elif [ "${#@}" -gt "2" ]
-    then
+    for n in $NAMES
+    do
+        F=$( find $1 -name $n)
+        cp $F "./in"
+    done
 
-        NAMES=$( ls $1 | shuf -n $3 )
-
-        for n in $NAMES
-        do
-            F=$( find $1 -name $n)
-            cp $F "./in"
-        done
-
-        time java UATokenizer "./in" $2
-
-    else
-        time java UATokenizer $1 $2
-    fi
+    time java UATokenizer "./in" $2
 
 else
-    echo "TOO MANY FILES GIVEN"
+    time java UATokenizer $1 $2
 fi
+
+SIZE=$( ls $1 | wc -l )
 
 #rm *.java
 #rm *.class
