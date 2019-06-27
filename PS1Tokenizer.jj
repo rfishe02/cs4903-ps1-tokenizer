@@ -139,8 +139,8 @@ public class UATokenizer {
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
-      String fmt = t.image.toLowerCase();
-      //String fmt = t.image.toLowerCase()+" "+type;
+      //String fmt = t.image.toLowerCase();
+      String fmt = t.image.toLowerCase()+" "+type;
       
       boolean email = type.equals("<EMAIL>")||type.equals("<DQEMAIL>")||type.equals("<SQEMAIL>")||type.equals("<JSONEMAILSQ>")||type.equals("<JSONEMAILDQ>");
       
@@ -148,10 +148,10 @@ public class UATokenizer {
       
       boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSONPHONESQ>")||type.equals("<JSONPHONEDQ>");
       
-      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("JSONWORDSQ")|| type.equals("JSONWORDDQ");
+      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("<JSONWORDSQ>")|| type.equals("<JSONWORDDQ>");
       
-      boolean price = type.equals("PRICE")||type.equals("<PRICE2>");
-      
+      boolean price = type.equals("<PRICE>")||type.equals("<PRICE2>");
+
       count[0]++; // Count number of tokens processed.
       
       if(fmt.length() > 1) {
@@ -230,8 +230,8 @@ SKIP : {
 | < NEWLINE : ("\r"|"\n")+ >
 | < CSEP : ("'"|"’"|"\u2019"|"â€™"|"&#x27;"|"&#" (["3"-"4"]){2} ";") > // Contraction seperator.
 | < PSEP : (["-"," ","."]|"&#8722;"|"&#46;") > // Phone seperator. 
-| < HTTPSYM : [",","-","_",";",":","+","^","%","#","=","@","~","[","]","$","'","(",")","*"] >
-| < LINKSYM : [",","-","_",";",":","+","^","%","#","=","@","~","[","]","$","'","(",")","*"," "]>
+| < HTTPSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"] >
+| < LINKSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"," "]>
 | < EMAILSYM : ["!","#","$","%","^","&","*","_","+","=","-"] >
 }
 
@@ -252,8 +252,10 @@ SKIP : {
 
 // Tags we'll enter and either tokenize, or skip altogther.
 
+// type="application/json+oembed"
+
 SKIP : {
-  < SCRIPTTAG :  "<" (" ")*"script"(" ")* "type="(" ")*("\""|"'") (" ")*(["a"-"z"])+("/json")(("+")?["a"-"z"])+ (" ")*("\""|"'") > : IN_JSON 
+  < SCRIPTTAG :  "<" (" ")*"script"(" ")* "type="(" ")*["\"","'"](" ")* ((["a"-"z","/","+"])+)?"json"((["a"-"z","/","+"])+)? (" ")*["\"","'"] > : IN_JSON 
 | < SCRIPTTAG2 :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_SK 
 | < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
 | < PRETAG :  "<" (" ")*("pre"|"code")(" ")* > : IN_PRE_TAG
@@ -294,6 +296,10 @@ SKIP : {
 
 < IN_JSONSQ > SKIP : {
   < ENDJSONSQ : "'" > : IN_JSON
+| < JSONSQJNK : <HTTPJNKDQ> >
+| < JSONSQLNK : <HTTPLNKDQ> >
+| < JSONSQHTTP : <HTTP> >
+| < JSONSQPORT : <PORT> >
 | < JSONSQMISC : ~[] > 
 }
 < IN_JSONSQ > TOKEN : {
@@ -305,6 +311,10 @@ SKIP : {
 
 < IN_JSONDQ > SKIP : {
   < ENDJSONDQ : "\"" > : IN_JSON
+| < JSONDQJNK : <HTTPJNKDQ> >
+| < JSONDQLNK : <HTTPLNKDQ> >
+| < JSONDQHTTP : <HTTP> >
+| < JSONDQPORT : <PORT> >
 | < JSONDQMISC : ~[] > 
 }
 < IN_JSONDQ > TOKEN : {
@@ -402,8 +412,8 @@ SKIP : {
 }
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"href"|"title") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"href"|"title") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"href") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -411,8 +421,8 @@ SKIP : {
 
 <IN_SQ> SKIP : {
   < ENDSQ : ("'") > : IN_OPEN_TAG
-| < SQJNK : <HTTPJNK> >
-| < SQLNK : <HTTPLNK> >
+| < SQJNK : <HTTPJNKSQ> >
+| < SQLNK : <HTTPLNKSQ> >
 | < SQHTTP : <HTTP> >
 | < SQPORT : <PORT> >
 | < SQMISC: ~[] >
@@ -420,12 +430,13 @@ SKIP : {
 <IN_SQ> TOKEN : {
   < SQDOM : <HTTPDOM> >
 | < SQEMAIL : <EMAIL> >
+| < SQWORD : (<WORD>|<CONT>) >
 }
 
 <IN_DQ> SKIP : {
   < ENDDQ : ("\"") > : IN_OPEN_TAG
-| < DQJNK : <HTTPJNK> >
-| < DQLNK : <HTTPLNK> >
+| < DQJNK : <HTTPJNKDQ> >
+| < DQLNK : <HTTPLNKDQ> >
 | < DQHTTP : <HTTP> >
 | < DQPORT : <PORT> >
 | < DQMISC : ~[] >
@@ -433,6 +444,7 @@ SKIP : {
 <IN_DQ> TOKEN : {
   < DQDOM : <HTTPDOM> >
 | < DQEMAIL : <EMAIL> >
+| < DQWORD : (<WORD>|<CONT>) >
 }
 
 /*
@@ -448,6 +460,41 @@ SKIP : {
   < ENDSPATTR : "\"" > : DEFAULT
 | < HTMLATTRMISC1 : ~[] >
 }*/
+
+/* ============================================================================================
+ 
+   Skip parts of the url that may contribute more garbage than relevant information.
+
+ ============================================================================================ */
+
+SKIP : {
+  < HTTPJNKSQ : ["&","?",";"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"\""){1,2} )+ ( <HTTPDOM> )?  >
+| < HTTPJNKDQ : ["&","?",";"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"'"){1,2} )+ ( <HTTPDOM> )?  >
+| < HTTPLNKSQ : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"\""){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+| < HTTPLNKDQ : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"'"){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+| < HTTP : (["a"-"z"])+"://" >
+| < PORT : ":"(["0"-"9"]){4,8} >
+}
+
+/*
+  Only retain HTML domains, parts of the url, email addresses that seem useful.
+*/
+
+TOKEN : {	
+  < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
+    /*tmp = image.toString().split("\\.");
+    if(tmp.length > 2) {
+      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    } else {
+      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
+    }*/
+  }
+| < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
+            "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
+    /*tmp = image.toString().split("\\.");
+    matchedToken.image = tmp[tmp.length-1];*/
+  }
+}
 
 /* ============================================================================================
  
@@ -541,8 +588,8 @@ TOKEN : {
   < BREV : ( < ALPHA > ("&#46;"|["0"-"9","."]) )+ < ALPHA > ("&#46;"|["0"-"9","."]) > {
     //matchedToken.image = matchedToken.image.replaceAll("(\\.-)","").trim();
   }
-| < CONT : ( < ALPHA > ( < ENGSYMB >| < CSEP > | "-" )? )+ ( < ALPHA > )+ >
-| < WORD : (< ALPHA >)+ > {
+| < CONT : ( < ALPHA > )+ ( < ENGSYMB >| < CSEP > | "-" ) ( < ALPHA > )+ >
+| < WORD : < ALPHA >(< ALPHA >)+ > {
 
       /*
       if(cont) {
@@ -556,37 +603,4 @@ TOKEN : {
 SKIP : {
   < NUMBER : (["0"-"9"])+>
 | < MISC: ~[] >
-}
-
-/* ============================================================================================
- 
-   Skip parts of the url that may contribute more garbage than relevant information.
-
- ============================================================================================ */
-
-SKIP : {
-  < HTTPJNK : ["&","?"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>){1,2} )+ ( <HTTPDOM> )?  >
-| < HTTPLNK : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"css"|"xml") )? >
-| < HTTP : (["a"-"z"])+"://" >
-| < PORT : ":"(["0"-"9"]){4,8} >
-}
-
-/*
-  Only retain HTML domains, parts of the url, email addresses that seem useful.
-*/
-
-TOKEN : {	
-  < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
-    /*tmp = image.toString().split("\\.");
-    if(tmp.length > 2) {
-      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    } else {
-      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    }*/
-  }
-| < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
-            "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
-    /*tmp = image.toString().split("\\.");
-    matchedToken.image = tmp[tmp.length-1];*/
-  }
 }
