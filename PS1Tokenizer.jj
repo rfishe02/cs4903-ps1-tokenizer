@@ -127,8 +127,7 @@ public class UATokenizer {
     do {
       t = parser.getNextToken();
       
-      bw2.write(t.image.toLowerCase()+"\n");
-      recordToken(bw,t,count);
+      recordToken(bw,bw2,t,count);
       
     } while(t.kind != UATokenizerConstants.EOF);
     
@@ -136,48 +135,55 @@ public class UATokenizer {
       count[1]++;
   }
   
-  public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
+  public static void recordToken(BufferedWriter[] bw, BufferedWriter bw2, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
+      
       String fmt = t.image.toLowerCase();
       //String fmt = t.image.toLowerCase()+" "+type;
       
-      boolean email = type.equals("<EMAIL>")||type.equals("<DQEMAIL>")||type.equals("<SQEMAIL>")||type.equals("<JSEMAILSQ>")||type.equals("<JSEMAILDQ>");
-      
-      boolean dom = type.equals("<HTTPDOM>")||type.equals("<SQDOM>")||type.equals("<DQDOM>")||type.equals("<JSDOMSQ>")||type.equals("<JSDOMDQ>");
-      
-      boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSPHONESQ>")||type.equals("<JSPHONEDQ>");
-      
-      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("<JSWORDSQ>")|| type.equals("<JSWORDDQ>");
-      
-      boolean price = type.equals("<PRICE>")||type.equals("<PRICE2>");
-
+      bw2.write(fmt+"\n");
       count[0]++; // Count number of tokens processed.
       
-      if(fmt.length() > 1) {
-        if(email) {
+      if(fmt.length() > 2) {
+        if(type.equals("<EMAIL>")    ||type.equals("<DQEMAIL>")   ||type.equals("<SQEMAIL>")||
+           type.equals("<JSEMAILSQ>")||type.equals("<JSEMAILDQ>")) {
+            
             bw[1].write(fmt+"\n");
             count[2]++;
 
-        } else if(dom) {
+        } else if(type.equals("<HTTPDOM>")||type.equals("<SQDOM>")   ||type.equals("<DQDOM>")||
+                  type.equals("<JSDOMSQ>")||type.equals("<JSDOMDQ>")) {
+            
             bw[2].write(fmt+"\n");
             count[3]++;
 
-        } else if(price) {
+        } else if(type.equals("<PRICE>")||type.equals("<PRICE2>")) {
+            
             bw[3].write(fmt+"\n");
             count[4]++;
 
-        } else if(phone) {
+        } else if(type.equals("<WORD>")    ||type.equals("<CONT>")    ||type.equals("<CROWDED>")  ||
+                  type.equals("<CROWDED2>")||type.equals("<BREV>")    ||type.equals("<SQWORD>")   || 
+                  type.equals("<DQWORD>")  ||type.equals("<JSWORDSQ>")||type.equals("<JSWORDDQ>")) {
+            
+            if(fmt.length() > 8) {
+                fmt = fmt.substring(0,9); // Reduce the size of the word to a length of 9.
+            }
+            
+            bw[4].write(fmt+"\n");
+            count[5]++;
+            
+        } else if(type.equals("<PHONE34>")  ||type.equals("<PHONE32>")   || type.equals("<PHONE58>")||
+                  type.equals("<JSPHONESQ>")||type.equals("<JSPHONEDQ>")) {
+            
             bw[5].write(fmt+"\n");
             count[6]++;
 
-        } else if(word) {
-            bw[4].write(fmt+"\n");
-            count[5]++;
-        } else {
+        }  else {
             bw[0].write(fmt+"\n"); // Write remaining tokens to a separate file.
         }
-      } 
+      }
 
     } catch(IOException ex) {
       System.exit(1);
@@ -199,6 +205,7 @@ public class UATokenizer {
       System.exit(1);
     }
   }
+
 }
 
 PARSER_END(UATokenizer)
@@ -210,12 +217,48 @@ TOKEN_MGR_DECLS : {
   String pSep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
   String sSep = "(&#39;|&#039;|&#39;s|&#039;s|&#x27;|&#183;|&#034;|&#821)";
   String pReg = "[\\s,\\.,-]";
-  String p = "-";
+  String p = "";
   String w = ".";
   int wordEnd;
   int tagSt;
   boolean tagCt;
   boolean cont;
+  
+  public String cleanPhone(String str) {
+    
+    String tmp = str;
+    String[] spl = tmp.replaceAll(pSep,"").split(pReg);
+    
+    if(spl.length > 2) {
+      tmp = spl[spl.length-3] +p+ spl[spl.length-2] +p+ spl[spl.length-1];
+    } else if(spl.length > 1) {
+      tmp = spl[spl.length-2] +p+ spl[spl.length-1];
+    }
+    
+    return tmp;
+      
+  }
+  
+  public String cleanWord(String str) {
+   
+    return str.replaceAll(cSep,"");
+      
+  }
+  
+  public String cleanHTML(String str) {
+   
+      String tmp = str;
+      String[] spl = str.split("\\.");
+      
+      if(spl.length > 2) {
+          tmp = spl[spl.length-3]+w+spl[spl.length-2]+w+spl[spl.length-1];
+      } else {
+          tmp = spl[spl.length-2]+w+spl[spl.length-1];
+      }
+ 
+      return tmp;
+      
+  }
 
 }
 
@@ -319,10 +362,18 @@ SKIP : {
 | < JSSQMISC : ~[] > 
 }
 < IN_JSSQ > TOKEN : {
-  < JSDOMSQ : <HTTPDOM> >
+  < JSDOMSQ : <HTTPDOM> > {
+    matchedToken.image = cleanHTML(matchedToken.image);
+  }
 | < JSEMAILSQ : <EMAIL> >
-| < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
-| < JSWORDSQ : <WORD> >
+| < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
+    
+    matchedToken.image = cleanPhone(matchedToken.image);
+    
+  }
+| < JSWORDSQ : <WORD> > {
+    matchedToken.image = cleanWord(matchedToken.image);  
+  }
 }
 
 < IN_JSDQ > SKIP : {
@@ -334,10 +385,18 @@ SKIP : {
 | < JSDQMISC : ~[] > 
 }
 < IN_JSDQ > TOKEN : {
-  < JSDOMDQ : <HTTPDOM> >
+  < JSDOMDQ : <HTTPDOM> > {
+    matchedToken.image = cleanHTML(matchedToken.image);
+  }
 | < JSEMAILDQ : <EMAIL> >
-| < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
-| < JSWORDDQ : <WORD> >
+| < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
+    
+    matchedToken.image = cleanPhone(matchedToken.image);
+    
+  }
+| < JSWORDDQ : <WORD> > {
+    matchedToken.image = cleanWord(matchedToken.image);  
+  }
 }
 
 /* ============================================================================================
@@ -383,9 +442,13 @@ SKIP : {
 | < SQMISC: ~[] >
 }
 <IN_SQ> TOKEN : {
-  < SQDOM : <HTTPDOM> >
+  < SQDOM : <HTTPDOM> > {
+    matchedToken.image = cleanHTML(matchedToken.image);
+  }
 | < SQEMAIL : <EMAIL> >
-| < SQWORD : (<WORD>|<CONT>) >
+| < SQWORD : (<WORD>|<CONT>) > {
+    matchedToken.image = cleanWord(matchedToken.image);  
+  }
 }
 
 <IN_DQ> SKIP : {
@@ -397,24 +460,14 @@ SKIP : {
 | < DQMISC : ~[] >
 }
 <IN_DQ> TOKEN : {
-  < DQDOM : <HTTPDOM> >
+  < DQDOM : <HTTPDOM> > {
+    matchedToken.image = cleanHTML(matchedToken.image);
+  }
 | < DQEMAIL : <EMAIL> >
-| < DQWORD : (<WORD>|<CONT>) >
+| < DQWORD : (<WORD>|<CONT>) > {
+    matchedToken.image = cleanWord(matchedToken.image);  
+  }
 }
-
-/*
-SKIP : {
-  < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
-| < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
-}
-< IN_HTMLATTR_SQ > SKIP : {
-  < ENDSPATTR2 : "'" > : DEFAULT
-| < HTMLATTRMISC2 : ~[] >
-}
-< IN_HTMLATTR_DQ > SKIP : {
-  < ENDSPATTR : "\"" > : DEFAULT
-| < HTMLATTRMISC1 : ~[] >
-}*/
 
 /* ============================================================================================
  
@@ -437,12 +490,9 @@ SKIP : {
 
 TOKEN : {	
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
-    /*tmp = image.toString().split("\\.");
-    if(tmp.length > 2) {
-      matchedToken.image = tmp[tmp.length-3]+"."+tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    } else {
-      matchedToken.image = tmp[tmp.length-2]+"."+tmp[tmp.length-1];
-    }*/
+    
+    matchedToken.image = cleanHTML(matchedToken.image);
+      
   }
 | < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
             "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
@@ -489,28 +539,26 @@ SKIP : {
 }
 
 TOKEN : {
-  < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
-              (["0"-"9"]){3,4}< PSEP > (["0"-"9"]){3,4} > { 
-    /*tmp = image.toString().replaceAll(pSep,"").split(pReg);
-    if(tmp.length > 1) {
-      matchedToken.image = tmp[tmp.length-2] +p+ tmp[tmp.length-1];
-    }*/
+  < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )? (["0"-"9"]){3,4}< PSEP > (["0"-"9"]){3,4} > { 
+      
+    matchedToken.image = cleanPhone(matchedToken.image);
+    
   }
-| < PHONE32 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )?
-              (["0"-"9"]){2,3}< PSEP > (["0"-"9"]){2}< PSEP > (["0"-"9"]){2} > { 
-    /*tmp = image.toString().replaceAll(pSep,"").split(pReg);
-    if(tmp.length > 2) {
-      matchedToken.image = tmp[tmp.length-3] +p+ tmp[tmp.length-2] +p+ tmp[tmp.length-1];
-    }*/
+| < PHONE32 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )? (["0"-"9"]){2,3}< PSEP > (["0"-"9"]){2}< PSEP > (["0"-"9"]){2} > { 
+    
+    matchedToken.image = cleanPhone(matchedToken.image);
+    
   }
-| < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2}< PSEP > )?
-              ("(")?(["0"-"9"]){2,5}(")")?< PSEP > (["0"-"9"]){5,8} > { 
-    /*tmp = image.toString().replaceAll(pSep,"").split(pReg);
-    if(tmp.length > 1) {
-      matchedToken.image = tmp[tmp.length-2] +p+ tmp[tmp.length-1];
-    }*/
+| < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2}< PSEP > )? ("(")?(["0"-"9"]){2,5}(")")?< PSEP > (["0"-"9"]){5,8} > { 
+    
+    matchedToken.image = cleanPhone(matchedToken.image);
+    
   }
 }
+
+    
+    
+    
 
 /* ============================================================================================
  
@@ -520,15 +568,17 @@ TOKEN : {
 
 TOKEN : {
   < CROWDED : ">" (<WORD>|<CONT>) > {
+    
     matchedToken.image = image.substring(image.indexOf(">")+1,image.length());
     
-    //matchedToken.image = matchedToken.image.replaceAll(cSep,"");
+    matchedToken.image = cleanWord(matchedToken.image);
     
   }
 | < CROWDED2 : (<WORD>|<CONT>) < CLOSETAG > > {
+    
     matchedToken.image = image.substring(0,image.indexOf("<"));
     
-    //matchedToken.image = matchedToken.image.replaceAll(cSep,"");	
+    matchedToken.image = cleanWord(matchedToken.image);
     
   }
 }
@@ -541,18 +591,16 @@ TOKEN : {
 
 TOKEN : {
   < BREV : ( < ALPHA > ("&#46;"|["0"-"9","."]) )+ < ALPHA > ("&#46;"|["0"-"9","."]) > {
-    //matchedToken.image = matchedToken.image.replaceAll("(\\.-)","").trim();
-  }
-| < CONT : ( < ALPHA > )+ ( < ENGSYMB >| < CSEP > | "-" ) ( < ALPHA > )+ >
-| < WORD : < ALPHA >(< ALPHA >)+ > {
-
-      /*
-      if(cont) {
-        matchedToken.image = image.toString().replaceAll(cSep,"");
-        cont=false;
-      }*/
       
-    }
+    matchedToken.image = cleanWord(matchedToken.image);
+      
+  }
+| < CONT : ( < ALPHA > )+ ( < ENGSYMB >| < CSEP > | "-" ) ( < ALPHA > )+ > {
+  
+    matchedToken.image = cleanWord(matchedToken.image);
+    
+  }
+| < WORD : < ALPHA >(< ALPHA >)+ >
 }
 
 SKIP : {

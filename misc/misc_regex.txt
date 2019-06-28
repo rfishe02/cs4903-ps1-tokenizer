@@ -213,3 +213,16 @@ type.equals("<DOCDQWRD>")||
 }
 */
 
+/*
+SKIP : {
+  < HTMLATTRSQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "'" > : IN_HTMLATTR_SQ
+| < HTMLATTRDQ : (["a"-"z","A"-"Z","-","_",":"])+ (" ")*"="(" ")* "\"" > : IN_HTMLATTR_DQ
+}
+< IN_HTMLATTR_SQ > SKIP : {
+  < ENDSPATTR2 : "'" > : DEFAULT
+| < HTMLATTRMISC2 : ~[] >
+}
+< IN_HTMLATTR_DQ > SKIP : {
+  < ENDSPATTR : "\"" > : DEFAULT
+| < HTMLATTRMISC1 : ~[] >
+}*/
