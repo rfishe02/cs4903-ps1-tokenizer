@@ -139,16 +139,16 @@ public class UATokenizer {
   public static void recordToken(BufferedWriter[] bw, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
-      String fmt = t.image.toLowerCase();
-      //String fmt = t.image.toLowerCase()+" "+type;
+      //String fmt = t.image.toLowerCase();
+      String fmt = t.image.toLowerCase()+" "+type;
       
-      boolean email = type.equals("<EMAIL>")||type.equals("<DQEMAIL>")||type.equals("<SQEMAIL>")||type.equals("<JSONEMAILSQ>")||type.equals("<JSONEMAILDQ>");
+      boolean email = type.equals("<EMAIL>")||type.equals("<DQEMAIL>")||type.equals("<SQEMAIL>")||type.equals("<JSEMAILSQ>")||type.equals("<JSEMAILDQ>");
       
-      boolean dom = type.equals("<HTTPDOM>")||type.equals("<SQDOM>")||type.equals("<DQDOM>")||type.equals("<JSONDOMSQ>")||type.equals("<JSONDOMDQ>");
+      boolean dom = type.equals("<HTTPDOM>")||type.equals("<SQDOM>")||type.equals("<DQDOM>")||type.equals("<JSDOMSQ>")||type.equals("<JSDOMDQ>");
       
-      boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSONPHONESQ>")||type.equals("<JSONPHONEDQ>");
+      boolean phone = type.equals("<PHONE34>")|| type.equals("<PHONE32>")|| type.equals("<PHONE58>")||type.equals("<JSPHONESQ>")||type.equals("<JSPHONEDQ>");
       
-      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("<JSONWORDSQ>")|| type.equals("<JSONWORDDQ>");
+      boolean word = type.equals("<WORD>")||type.equals("<CONT>")||type.equals("<CROWDED>")|| type.equals("<CROWDED2>")|| type.equals("<BREV>") || type.equals("<SQWORD>") || type.equals("<DQWORD>")|| type.equals("<JSWORDSQ>")|| type.equals("<JSWORDDQ>");
       
       boolean price = type.equals("<PRICE>")||type.equals("<PRICE2>");
 
@@ -158,7 +158,7 @@ public class UATokenizer {
         if(email) {
             bw[1].write(fmt+"\n");
             count[2]++;
-		
+
         } else if(dom) {
             bw[2].write(fmt+"\n");
             count[3]++;
@@ -166,11 +166,11 @@ public class UATokenizer {
         } else if(price) {
             bw[3].write(fmt+"\n");
             count[4]++;
-		
+
         } else if(phone) {
             bw[5].write(fmt+"\n");
             count[6]++;
-		
+
         } else if(word) {
             bw[4].write(fmt+"\n");
             count[5]++;
@@ -253,26 +253,38 @@ SKIP : {
 // Tags we'll enter and either tokenize, or skip altogther.
 
 // type="application/json+oembed"
+//< SCRIPTTAG :  "<" (" ")*("script"|"SCRIPT")(" ")* "type="(" ")*["\"","'"](" ")* ((["a"-"z","/","+"])+)?("json"|"javascript")((["a"-"z","/","+"])+)? (" ")*["\"","'"] > : IN_JS 
 
 SKIP : {
-  < SCRIPTTAG :  "<" (" ")*"script"(" ")* "type="(" ")*["\"","'"](" ")* ((["a"-"z","/","+"])+)?"json"((["a"-"z","/","+"])+)? (" ")*["\"","'"] > : IN_JSON 
-| < SCRIPTTAG2 :  "<" (" ")*"script"(" ")* > : IN_SCRIPT_SK 
-| < SPTAG : "<" (" ")*("style"|"button"|"noscript"|"time")(" ")* > : IN_SP_TAG
-| < PRETAG :  "<" (" ")*("pre"|"code")(" ")* > : IN_PRE_TAG
+  < SCRIPTTAG2 :  "<" (" ")*("script"|"SCRIPT")(" ")* > : IN_SCRIPT 
+| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"noscript"|"NOSCRIPT"|"time"|"TIME")(" ")* > : IN_SP_TAG
+| < PRETAG :  "<" (" ")*("pre"|"PRE"|"code"|"CODE")(" ")* > : IN_CODE_TAG
 | < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 }
 
 < IN_SP_TAG > SKIP : {
-  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"button"|"noscript"|"time") > : DEFAULT
+  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"noscript"|"NOSCRIPT"|"time"|"TIME") > : DEFAULT
+| < SPCMT : "/*" > : SP_CMT
 | < SPTAGMISC : ~[] >
 }
-< IN_PRE_TAG > SKIP : {
-  < ENDPRETAG : "<" (" ")*"/"(" ")* ("pre"|"code") > : DEFAULT
+< SP_CMT > SKIP : {
+  < ENDSPCMT : "*/" > : IN_SP_TAG
+| < SPCMTMISC : ~[] >
+}
+
+< IN_CODE_TAG > SKIP : {
+  < ENDPRETAG : "<" (" ")*"/"(" ")* ("pre"|"PRE"|"code"|"CODE") > : DEFAULT
 | < PREMISC : ~[] >
 }
+
 < IN_PHP > SKIP : {
-  < ENDPHP : "?>" > : DEFAULT
+  < ENDPHP : "?"(" ")*">" > : DEFAULT
+| < PHPCMT : "/*" > : PHP_CMT
 | < PHPMISC : ~[] >
+}
+< PHP_CMT > SKIP : {
+  < ENDPHPCMT : "*/" > : IN_PHP
+| < PHPCMTMISC : ~[] >
 }
 
 /* --------------------------------------------------------------------------------------------
@@ -281,109 +293,52 @@ SKIP : {
  
  -------------------------------------------------------------------------------------------- */
 
-/* script type = "application/ld+json"{ "":"", }
- * "name" : [ "...
- * "text"
- * "title"
- */
-
-< IN_JSON > SKIP : {
-  < ENDJSON : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| < JSONSQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSONSQ
-| < JSONDQ : ("description"|"title"|"email"|"url"|"href"|"telephone") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSONDQ
-| < JSONMISC : ~[] > 
-}
-
-< IN_JSONSQ > SKIP : {
-  < ENDJSONSQ : "'" > : IN_JSON
-| < JSONSQJNK : <HTTPJNKDQ> >
-| < JSONSQLNK : <HTTPLNKDQ> >
-| < JSONSQHTTP : <HTTP> >
-| < JSONSQPORT : <PORT> >
-| < JSONSQMISC : ~[] > 
-}
-< IN_JSONSQ > TOKEN : {
-  < JSONWORDSQ : <WORD> >
-| < JSONEMAILSQ : <EMAIL> >
-| < JSONDOMSQ : <HTTPDOM> >
-| < JSONPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
-}
-
-< IN_JSONDQ > SKIP : {
-  < ENDJSONDQ : "\"" > : IN_JSON
-| < JSONDQJNK : <HTTPJNKDQ> >
-| < JSONDQLNK : <HTTPLNKDQ> >
-| < JSONDQHTTP : <HTTP> >
-| < JSONDQPORT : <PORT> >
-| < JSONDQMISC : ~[] > 
-}
-< IN_JSONDQ > TOKEN : {
-  < JSONWORDDQ : <WORD> >
-| < JSONEMAILDQ : <EMAIL> >
-| < JSONDOMDQ : <HTTPDOM> >
-| < JSONPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
-}
-
-/* The procedure for all other types of scripts, like JavaScript. */
-
-< IN_SCRIPT_SK > SKIP : {
-  < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+< IN_SCRIPT > SKIP : {
+  < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
+| < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
+| < SCRIPTCMT : "/*" > : IN_SC_CMT
+| < JSSQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
+| < JSDQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] > 
 }
-
-/*
-
-Incomplete technique for dealing the information in JavaScript.
- 
-| < DOCWRITE : "document.write" (" ")* ["("] > : IN_DOC
-type.equals("<DOCSQWRD>") ||
-type.equals("<DOCDQWRD>")||
-
-< IN_SCRIPT_TAG > SKIP : {
-  < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
-| < INJSON : "json" > : IN_JSON
-| < SCRIPTTAGMISC : ~[] > 
+< IN_DOC_WRITE > SKIP : {
+  < ENDDOCWRITE : ")"(" ")*";" > : IN_SCRIPT
+| < DOCWRITEMISC : ~[] > 
+}
+< IN_SC_CMT > SKIP : {
+  < ENDSCCMT : "*/" > : IN_SCRIPT
+| < SCCMTMISC : ~[] > 
 }
 
-<IN_DOC> SKIP : {
-  < ENDDOC : ");" > : IN_SCRIPT_TAG 
-| < STDOCSQ : ["'"] > : IN_DOC_SQ
-| < SQDOCDQ : ["\""] > : IN_DOC_DQ
-| < DOCMISC : ~[] > 
+< IN_JSSQ > SKIP : {
+  < ENDJSSQ : "'" > : IN_SCRIPT
+| < JSSQJNK : <HTTPJNKSQ> >
+| < JSSQLNK : <HTTPLNKSQ> >
+| < JSSQHTTP : <HTTP> >
+| < JSSQPORT : <PORT> >
+| < JSSQMISC : ~[] > 
+}
+< IN_JSSQ > TOKEN : {
+  < JSDOMSQ : <HTTPDOM> >
+| < JSEMAILSQ : <EMAIL> >
+| < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
+| < JSWORDSQ : <WORD> >
 }
 
-// Deal with tags that used single quotes.
-
-<IN_DOC_SQ> TOKEN : {
-    < DOCSQWRD : < WORD > >
+< IN_JSDQ > SKIP : {
+  < ENDJSDQ : "\"" > : IN_SCRIPT
+| < JSDQJNK : <HTTPJNKDQ> >
+| < JSDQLNK : <HTTPLNKDQ> >
+| < JSDQHTTP : <HTTP> >
+| < JSDQPORT : <PORT> >
+| < JSDQMISC : ~[] > 
 }
-<IN_DOC_SQ> SKIP : {
-  < ENDDOCSQ : ["'"] > : IN_DOC
-| < DOCSQOT : ["<"] > : DOC_SQ_TAG
-| < DOCSQCT : < CLOSETAG > >
-| < DOCSQMISC : ~[] > 
+< IN_JSDQ > TOKEN : {
+  < JSDOMDQ : <HTTPDOM> >
+| < JSEMAILDQ : <EMAIL> >
+| < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) >
+| < JSWORDDQ : <WORD> >
 }
-<DOC_SQ_TAG> SKIP : {
-  < ENDDOCSQTAG : [">"] > : IN_DOC_SQ
-| < DOCSQTGMISC : ~[] > 
-}
-
-// Deal with tags that used double quotes.
-
-<IN_DOC_DQ> TOKEN : {
-    < DOCDQWRD : < WORD > >
-}
-<IN_DOC_DQ> SKIP : {
-  < ENDDOCDQ : ["\""] > : IN_DOC
-| < DOCDQOT : ["<"] > : DOC_DQ_TAG
-| < DOCDQCT : < CLOSETAG > >
-| < DOCDQMISC : ~[] > 
-}
-<DOC_DQ_TAG> SKIP : {
-  < ENDDOCDQTAG : [">"] > : IN_DOC_DQ
-| < DOCDQTGMISC : ~[] > 
-}
-*/
 
 /* ============================================================================================
  
@@ -401,13 +356,13 @@ type.equals("<DOCDQWRD>")||
  */
 
 SKIP : {
-  < CMTTAG : "<" (" ")*( "!" )(" ")* > : IN_CMT_TAG
+  < CMTTAG : "<" (" ")*"!"(" ")* > : IN_CMT_TAG
 | < OPENTAG : "<" (" ")*( (["a"-"z","A"-"Z","0"-"9","-"])+ )(" ")* > : IN_OPEN_TAG
 | < CLOSETAG : "<" (" ")* ( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+ 
                | (["a"-"z","A"-"Z","0"-"9","-"])+ (" ")*"/" ) (" ")* >
 }
 < IN_CMT_TAG > SKIP : {
-  < ENDCMTTAG : (">") > : DEFAULT
+  < ENDCMTTAG : "-"(" ")*">" > : DEFAULT
 | < CMTMISC : ~[] >
 }
 < IN_OPEN_TAG > SKIP : {

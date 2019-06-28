@@ -137,4 +137,79 @@ MORE : {
       }
       
       
+/* script type = "application/ld+json"{ "":"", }
+ * "name" : [ "...
+ * "text"
+ * "title"
+ */
+ 
+
+/*
+
+Incomplete technique for dealing the information in JavaScript.
+ 
+| < DOCWRITE : "document.write" (" ")* ["("] > : IN_DOC
+type.equals("<DOCSQWRD>") ||
+type.equals("<DOCDQWRD>")||
+
+< IN_SCRIPT_TAG > SKIP : {
+  < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
+| < INJSON : "json" > : IN_JSON
+| < SCRIPTTAGMISC : ~[] > 
+}
+
+<IN_DOC> SKIP : {
+  < ENDDOC : ");" > : IN_SCRIPT_TAG 
+| < STDOCSQ : ["'"] > : IN_DOC_SQ
+| < SQDOCDQ : ["\""] > : IN_DOC_DQ
+| < DOCMISC : ~[] > 
+}
+
+// Deal with tags that used single quotes.
+
+<IN_DOC_SQ> TOKEN : {
+    < DOCSQWRD : < WORD > >
+}
+<IN_DOC_SQ> SKIP : {
+  < ENDDOCSQ : ["'"] > : IN_DOC
+| < DOCSQOT : ["<"] > : DOC_SQ_TAG
+| < DOCSQCT : < CLOSETAG > >
+| < DOCSQMISC : ~[] > 
+}
+<DOC_SQ_TAG> SKIP : {
+  < ENDDOCSQTAG : [">"] > : IN_DOC_SQ
+| < DOCSQTGMISC : ~[] > 
+}
+
+// Deal with tags that used double quotes.
+
+<IN_DOC_DQ> TOKEN : {
+    < DOCDQWRD : < WORD > >
+}
+<IN_DOC_DQ> SKIP : {
+  < ENDDOCDQ : ["\""] > : IN_DOC
+| < DOCDQOT : ["<"] > : DOC_DQ_TAG
+| < DOCDQCT : < CLOSETAG > >
+| < DOCDQMISC : ~[] > 
+}
+<DOC_DQ_TAG> SKIP : {
+  < ENDDOCDQTAG : [">"] > : IN_DOC_DQ
+| < DOCDQTGMISC : ~[] > 
+}
+*/
+
+< IN_JS > SKIP : {
+  < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
+| < JSSQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
+| < JSDQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
+| < JSMISC : ~[] > 
+}
+
+/*
+ * | < JSCMT : "/*" > : INJS_CMT
+< INJS_CMT > SKIP : {
+  < ENDJSCMT : "/" > : IN_JS 
+| < JSCMTMISC : ~[] > 
+}
+*/
 
