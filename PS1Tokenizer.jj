@@ -225,7 +225,7 @@ TOKEN_MGR_DECLS : {
 
   public String cleanPhone(String str) {
     String tmp = str;
-    String[] spl = tmp.split("[\\s,\\.,-]");
+    String[] spl = tmp.split("[\\s\\.-]");
 
     if(spl.length > 2) {
       tmp = spl[spl.length-3] +""+ spl[spl.length-2] +""+ spl[spl.length-1];
