@@ -9,3 +9,7 @@ cat ./results/top100word.txt
 ./tokenizer.sh input output 1000
 
 ./tokenizer.sh /uafs/textmining/big output 500
+
+java Clean ../ps1_output6/out_files test > test.txt
+cat test.txt | tail -n 20
+grep " [10][.][0-8]" test.txt
