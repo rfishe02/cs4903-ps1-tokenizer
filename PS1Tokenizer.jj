@@ -66,6 +66,7 @@ public class UATokenizer {
   }
 
   public static void run(String[] args) {
+    BufferedWriter bw2;
     File[] zDir;
     int[] count = new int[7];
 
@@ -84,7 +85,7 @@ public class UATokenizer {
       long start = System.currentTimeMillis();
 
       if(files == null) {
-        BufferedWriter bw2 = new BufferedWriter(new FileWriter(args[1]+"/out/"+inDir.getName()+".out"));
+        bw2 = new BufferedWriter(new FileWriter(args[1]+"/out/"+inDir.getName()+".out"));
         processFile(bw,bw2,inDir,count); // Process a single file.
         bw2.close();
       } else {
@@ -134,8 +135,8 @@ public class UATokenizer {
   public static void recordToken(BufferedWriter[] bw, BufferedWriter bw2, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
-      String fmt = t.image.toLowerCase();
-      //String fmt = t.image.toLowerCase()+" "+type;
+      //String fmt = t.image.toLowerCase();
+      String fmt = t.image.toLowerCase()+" "+type;
 
       bw2.write(fmt+"\n");
       count[0]++; // Count number of tokens processed.
@@ -253,7 +254,6 @@ SKIP : {
   < SPACE : (" "|"\t"|"&#160;")+ >
 | < NEWLINE : ("\r"|"\n")+ >
 | < CSEP : ("'"|"’"|"\u2019"|"â€™"|"&#x27;"|"&#" (["3"-"4"]){2} ";") > // Contraction seperator.
-| < PSEP : (["-"," ","."]|"&#8722;"|"&#46;") > // Phone seperator.
 | < HTTPSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"] >
 | < LINKSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"," "]>
 | < EMAILSYM : ["!","#","$","%","^","&","*","_","+","=","-"] >
@@ -339,7 +339,7 @@ SKIP : {
   }
 | < JSEMAILSQ : <EMAIL> >
 | < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
-    matchedToken.image = cleanPhone(matchedToken.image);
+    //matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < JSWORDSQ : <WORD> > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -360,7 +360,7 @@ SKIP : {
   }
 | < JSEMAILDQ : <EMAIL> >
 | < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
-    matchedToken.image = cleanPhone(matchedToken.image);
+    //matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < JSWORDDQ : <WORD> > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -463,12 +463,22 @@ TOKEN : {
  ============================================================================================ */
 
 SKIP : {
-  < YEARRANGE : (["1","2"]){1}(["0"-"9"]){3} "-" (["1","2"]){1}(["0"-"9"]){3} |  >
-| < HHMM : (["0"-"9"]){2}":"(["0"-"9"]){2} (["A","M"]["p","m"])? >
-| < HHMMSS : (["0"-"9"]){2}":"(["0"-"9"]){2}":"(["0"-"9"]){2} (["A","M"]["p","m"])? >
-| < YMD : (["0"-"9"]){2,4}["-","/"," "] ( (["0"-"9"]){2} | (["a"-"z","A"-"Z"]){3,10}(",")? ) ["-","/"," "] (["0"-"9"]){2} >
-| < DMY : (["0"-"9"]){2}["-","/"," "] ( (["0"-"9"]){2} | (["a"-"z","A"-"Z"]){3,10}(",")? ) ["-","/"," "] (["0"-"9"]){2,4} >
-| < MDY : ( (["0"-"9"]){2} | (["a"-"z","A"-"Z"]){3,10}(",")? ) ["-","/"," "] (["0"-"9"]){2}["-","/"," "] (["0"-"9"]){2,4} >
+  < YEAR : ( ["1","2"](["0"-"9"]){3} | (["0","9"]){2} ) >
+| < MONTH : ( (["0"-"1"])?["0"-"9"] | (["a"-"z","A"-"Z"]){3,10} ) >
+| < DAY : (["0"-"3"])?["0"-"9"] >
+}
+
+SKIP : {
+  < HHMM : (["0"-"9"]){2}":"(["0"-"9"]){2} (["A","a","P","p"]["M","m"])? >
+| < HHMMSS : (["0"-"9"]){2}":"(["0"-"9"]){2}":"(["0"-"9"]){2} (["A","a","P","p"]["M","m"])? >
+| < YEARRANGE : ( (["1","2"]){1}(["0"-"9"]){3} "-" (["1","2"]){1}(["0"-"9"]){3} )  >
+| < DATERANGE : ( (["0"-"9"]){1,2} "/" (["0"-"9"]){2} "-" (["0"-"9"]){1,2} "/" (["0"-"9"]){2} ) >
+| < YMD :  <YEAR> ["-","/","."," "] <MONTH> ["-","/","."," "] <DAY> >
+| < DMY :  <DAY> ["-","/","."," "] <MONTH> ["-","/","."," "] <YEAR> >
+| < MDY : <MONTH> ["-","/","."," "] <DAY> ["-","/","."," ",","] <YEAR> >
+| < IP : ( ( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2} ) ){1}
+         ( ["."]( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2})){3}
+         ("/" ( ("08"){1}| "16" | "2"(["4"-"9"]){1}|"32"))? >
 }
 
 TOKEN : {
@@ -486,20 +496,33 @@ TOKEN : {
    preceded by specific codes.
  -------------------------------------------------------------------------------------------- */
 
+//| < PSEP : (["-"," ","."]|"&#8722;"|"&#46;") > // Phone seperator.
+
 SKIP : {
-  < PHONEFI : ("+"|"&#43;") < PSEP > >
-| < PHONESE : ("(")?(["0"-"9"]){1,4}(")")? < PSEP > >
+  < PHONEFI : ("+"|"&#43;") >
+| < PHONESE : ("(")?(["0"-"9"]){1,4}(")")? >
+| < PHSTASP : ( ( ( <PHONEFI> " " )? <PHONESE> " " )? < PHONESE > " " )? >
+| < PHSTADS : ( ( ( <PHONEFI> "-" )? <PHONESE> "-" )? < PHONESE > "-" )? >
+| < PHSTAPR : ( ( ( <PHONEFI> "." )? <PHONESE> "." )? < PHONESE > "." )? >
 }
 
 TOKEN : {
-  < PHONE34 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )? (["0"-"9"]){3,4}< PSEP > (["0"-"9"]){3,4} > {
-    matchedToken.image = cleanPhone(matchedToken.image);
+  < PHONE34 :
+  < PHSTASP > (["0"-"9"]){3,4} " " (["0"-"9"]){3,4} |
+  < PHSTADS > (["0"-"9"]){3,4} "-" (["0"-"9"]){3,4} |
+  < PHSTAPR > (["0"-"9"]){3,4} "." (["0"-"9"]){3,4} > {
+    //matchedToken.image = cleanPhone(matchedToken.image);
   }
-| < PHONE32 : ( ( ( <PHONEFI> )? <PHONESE> )? < PHONESE > )? (["0"-"9"]){2,3}< PSEP > (["0"-"9"]){2}< PSEP > (["0"-"9"]){2} > {
-    matchedToken.image = cleanPhone(matchedToken.image);
+| < PHONE32 :
+  < PHSTASP > (["0"-"9"]){2,3} " " (["0"-"9"]){2} " " (["0"-"9"]){2} |
+  < PHSTADS > (["0"-"9"]){2,3} "-" (["0"-"9"]){2} "-" (["0"-"9"]){2} |
+  < PHSTADS > (["0"-"9"]){2,3} "." (["0"-"9"]){2} "." (["0"-"9"]){2} > {
+    //matchedToken.image = cleanPhone(matchedToken.image);
   }
-| < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2}< PSEP > )? ("(")?(["0"-"9"]){2,5}(")")?< PSEP > (["0"-"9"]){5,8} > {
-    matchedToken.image = cleanPhone(matchedToken.image);
+| < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2} " " )? ("(")?(["0"-"9"]){2,5}(")")? " " (["0"-"9"]){5,8} |
+  ( < PHONEFI > (["0"-"9"]){1,2} "-" )? ("(")?(["0"-"9"]){2,5}(")")? "-" (["0"-"9"]){5,8} |
+  ( < PHONEFI > (["0"-"9"]){1,2} "." )? ("(")?(["0"-"9"]){2,5}(")")? "." (["0"-"9"]){5,8} > {
+    //matchedToken.image = cleanPhone(matchedToken.image);
   }
 }
 
