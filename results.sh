@@ -25,7 +25,7 @@ then
     
     echo "merging output files"
 
-    cat $1/*.out > ./tokens.out
+    cat $1/out/*.out > ./tokens.out
     tr -cd 'A-Za-z0-9\n@.-' < tokens.out | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r > frequency.txt
     
     rm tokens.out
@@ -34,7 +34,7 @@ then
 
     echo "condensing individual token files"
 
-    for file in $1/*.txt
+    for file in $1/text/*.txt
     do
         F=`echo "$file" | sed 's/.*\///g'`
         tr -cd 'A-Za-z0-9\n@.-' < $file | tr -sc 'A-Za-z0-9' '\n' | tr A-Z a-z | sort -T $S | uniq -c | sort -T $S -n -r > "$R/uniq_$F"

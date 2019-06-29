@@ -36,8 +36,7 @@ public class UATokenizer {
     File[] files;
     File[] zDir;
     File inDir;
-    String[] spl;
-    String filename;
+    String filename = args[1]+"/out/"+inDir.getName()+".out";
     int[] count = new int[7];
     long start;
 
@@ -55,7 +54,7 @@ public class UATokenizer {
       start = System.currentTimeMillis();
       
       if(files == null) {
-        bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+inDir.getName()+".out"));
+        bw2 = new BufferedWriter(new FileWriter(filename));
         processFile(bw,bw2,inDir,count); // Process a single file.
         bw2.close();
       } else {
@@ -67,13 +66,13 @@ public class UATokenizer {
             if(zDir != null) {
                 
                 for(File z : zDir) {
-                    bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+z.getName()+".out"));
+                    bw2 = new BufferedWriter(new FileWriter(filename));
                     processFile(bw,bw2,z,count); // Process a files in a subdirectory.
                     bw2.close();
                 }
 	    
             } else {
-                bw2 = new BufferedWriter(new FileWriter(args[1]+"/"+f.getName()+".out"));
+                bw2 = new BufferedWriter(new FileWriter(filename));
                 processFile(bw,bw2,f,count); // Process multiple files.
                 bw2.close();
             }
@@ -88,15 +87,16 @@ public class UATokenizer {
     }
   }
   
-    public static BufferedWriter[] getWriters(File inDir) {
+  public static BufferedWriter[] getWriters(File inDir) {
     BufferedWriter[] bw = null;
+    String filename = inDir.getPath()+"/text/"+filenames[i];
     
     try {
       String[] filenames = {"other.txt","email.txt","domain.txt","price.txt","word.txt","phone.txt"};
       bw = new BufferedWriter[filenames.length];
       
       for (int i = 0; i < filenames.length; i++) {
-        bw[i] = new BufferedWriter(new FileWriter(inDir.getPath()+"/"+filenames[i]));
+        bw[i] = new BufferedWriter(new FileWriter(filename));
       }
       
     } catch(IOException ex) {
