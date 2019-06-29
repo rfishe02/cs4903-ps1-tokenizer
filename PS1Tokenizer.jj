@@ -525,18 +525,18 @@ TOKEN : {
   < PHSTASP > (["0"-"9"]){3,4} " " (["0"-"9"]){3,4} |
   < PHSTADS > (["0"-"9"]){3,4} "-" (["0"-"9"]){3,4} |
   < PHSTAPR > (["0"-"9"]){3,4} "." (["0"-"9"]){3,4} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+    matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < PHONE32 :
   < PHSTASP > (["0"-"9"]){2,3} " " (["0"-"9"]){2} " " (["0"-"9"]){2} |
   < PHSTADS > (["0"-"9"]){2,3} "-" (["0"-"9"]){2} "-" (["0"-"9"]){2} |
   < PHSTADS > (["0"-"9"]){2,3} "." (["0"-"9"]){2} "." (["0"-"9"]){2} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+    matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2} " " )? ("(")?(["0"-"9"]){2,5}(")")? " " (["0"-"9"]){5,8} |
   ( < PHONEFI > (["0"-"9"]){1,2} "-" )? ("(")?(["0"-"9"]){2,5}(")")? "-" (["0"-"9"]){5,8} |
   ( < PHONEFI > (["0"-"9"]){1,2} "." )? ("(")?(["0"-"9"]){2,5}(")")? "." (["0"-"9"]){5,8} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+    matchedToken.image = cleanPhone(matchedToken.image);
   }
 }
 
