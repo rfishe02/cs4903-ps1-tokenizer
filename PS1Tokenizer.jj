@@ -210,13 +210,17 @@ PARSER_END(UATokenizer)
 TOKEN_MGR_DECLS : {
   String[] tmp;
 
-  public String cleanAll(String str) {
-    return str.replaceAll("[^a-zA-Z0-9]", " ");
-  }
-
   public String cleanWord(String str) {
     str = str.replaceAll("('|’|\\.|\u2019|&#39;|&#44;|&#x27;|&#46;)","");
     return str.replaceAll("([^a-zA-Z0-9&#;]|&#45;)", " ");
+  }
+
+  public String cleanHTML(String str) {
+    return str.replaceAll("[\\.]", " ");
+  }
+
+  public String cleanEmail(String str) {
+    return str.replaceAll("[@\\.]", " ");
   }
 
   public String cleanPhone(String str) {
@@ -331,10 +335,10 @@ SKIP : {
 < IN_JSSQ > TOKEN : {
   < JSSQPRICE : <PRICE> | <PRICE2> >
 | < JSDOMSQ : <HTTPDOM> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < JSEMAILSQ : <EMAIL> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanEmail(matchedToken.image);
 }
 | < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
     matchedToken.image = cleanPhone(matchedToken.image);
@@ -357,10 +361,10 @@ SKIP : {
 < IN_JSDQ > TOKEN : {
   < JSDQPRICE : <PRICE> | <PRICE2> >
 | < JSDOMDQ : <HTTPDOM> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < JSEMAILDQ : <EMAIL> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanEmail(matchedToken.image);
 }
 | < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
     matchedToken.image = cleanPhone(matchedToken.image);
@@ -410,10 +414,10 @@ SKIP : {
 <IN_SQ> TOKEN : {
   < SQPRICE : <PRICE> | <PRICE2> >
 | < SQDOM : <HTTPDOM> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < SQEMAIL : <EMAIL> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanEmail(matchedToken.image);
 }
 | < SQWORD : (<WORD>|<CONT>) > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -433,10 +437,10 @@ SKIP : {
 <IN_DQ> TOKEN : {
   < DQPRICE : <PRICE> | <PRICE2> >
 | < DQDOM : <HTTPDOM> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < DQEMAIL : <EMAIL> > {
-    matchedToken.image = cleanAll(matchedToken.image);
+    matchedToken.image = cleanEmail(matchedToken.image);
 }
 | < DQWORD : (<WORD>|<CONT>) > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -462,11 +466,11 @@ SKIP : {
 
 TOKEN : {
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
-      matchedToken.image = cleanAll(matchedToken.image);
+      matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
             "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
-      matchedToken.image = cleanAll(matchedToken.image);
+      matchedToken.image = cleanEmail(matchedToken.image);
   }
 }
 
