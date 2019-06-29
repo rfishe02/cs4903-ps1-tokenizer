@@ -154,7 +154,8 @@ public class UATokenizer {
             bw[2].write(fmt+"\n");
             count[3]++;
 
-        } else if(type.equals("<PRICE>")||type.equals("<PRICE2>")) {
+        } else if(type.equals("<PRICE>")  ||type.equals("<PRICE2>")    ||type.equals("<SQPRICE>")  ||
+                  type.equals("<DQPRICE>")||type.equals("<JSSQPRICE>") ||type.equals("<JSDQPRICE>")) {
 
             bw[3].write(fmt+"\n");
             count[4]++;
@@ -312,8 +313,8 @@ SKIP : {
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
 | < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
 | < SCRIPTCMT : "/*" > : IN_SC_CMT
-| < JSSQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
-| < JSDQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
+| < JSSQ : ("description"|"title"|"headline"|"name"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
+| < JSDQ : ("description"|"title"|"headline"|"name"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
 < IN_DOC_WRITE > SKIP : {
@@ -327,6 +328,8 @@ SKIP : {
 
 < IN_JSSQ > SKIP : {
   < ENDJSSQ : "'" > : IN_SCRIPT
+| < JSSQDATE : <YMD> | <MDY> | <DMY> >
+| < JSSQIP : <IP> >
 | < JSSQJNK : <HTTPJNKSQ> >
 | < JSSQLNK : <HTTPLNKSQ> >
 | < JSSQHTTP : <HTTP> >
@@ -334,7 +337,8 @@ SKIP : {
 | < JSSQMISC : ~[] >
 }
 < IN_JSSQ > TOKEN : {
-  < JSDOMSQ : <HTTPDOM> > {
+  < JSSQPRICE : <PRICE> | <PRICE2> >
+| < JSDOMSQ : <HTTPDOM> > {
     matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < JSEMAILSQ : <EMAIL> >
@@ -348,6 +352,8 @@ SKIP : {
 
 < IN_JSDQ > SKIP : {
   < ENDJSDQ : "\"" > : IN_SCRIPT
+| < JSDQDATE : <YMD> | <MDY> | <DMY> >
+| < JSDQIP : <IP> >
 | < JSDQJNK : <HTTPJNKDQ> >
 | < JSDQLNK : <HTTPLNKDQ> >
 | < JSDQHTTP : <HTTP> >
@@ -355,7 +361,8 @@ SKIP : {
 | < JSDQMISC : ~[] >
 }
 < IN_JSDQ > TOKEN : {
-  < JSDOMDQ : <HTTPDOM> > {
+  < JSDQPRICE : <PRICE> | <PRICE2> >
+| < JSDOMDQ : <HTTPDOM> > {
     matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < JSEMAILDQ : <EMAIL> >
@@ -387,8 +394,8 @@ SKIP : {
 }
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"href") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -396,6 +403,8 @@ SKIP : {
 
 <IN_SQ> SKIP : {
   < ENDSQ : ("'") > : IN_OPEN_TAG
+| < SQDATE : <YMD> | <MDY> | <DMY> >
+| < SQIP : <IP> >
 | < SQJNK : <HTTPJNKSQ> >
 | < SQLNK : <HTTPLNKSQ> >
 | < SQHTTP : <HTTP> >
@@ -403,7 +412,8 @@ SKIP : {
 | < SQMISC: ~[] >
 }
 <IN_SQ> TOKEN : {
-  < SQDOM : <HTTPDOM> > {
+  < SQPRICE : <PRICE> | <PRICE2> >
+| < SQDOM : <HTTPDOM> > {
     matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < SQEMAIL : <EMAIL> >
@@ -414,6 +424,8 @@ SKIP : {
 
 <IN_DQ> SKIP : {
   < ENDDQ : ("\"") > : IN_OPEN_TAG
+| < DQDATE : <YMD> | <MDY> | <DMY> >
+| < DQIP : <IP> >
 | < DQJNK : <HTTPJNKDQ> >
 | < DQLNK : <HTTPLNKDQ> >
 | < DQHTTP : <HTTP> >
@@ -421,7 +433,8 @@ SKIP : {
 | < DQMISC : ~[] >
 }
 <IN_DQ> TOKEN : {
-  < DQDOM : <HTTPDOM> > {
+  < DQPRICE : <PRICE> | <PRICE2> >
+| < DQDOM : <HTTPDOM> > {
     matchedToken.image = cleanHTML(matchedToken.image);
   }
 | < DQEMAIL : <EMAIL> >
