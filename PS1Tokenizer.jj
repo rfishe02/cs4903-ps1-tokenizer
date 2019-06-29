@@ -209,40 +209,32 @@ PARSER_END(UATokenizer)
 
 TOKEN_MGR_DECLS : {
   String[] tmp;
-  String pSep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
-  String sSep = "(&#39;|&#039;|&#39;s|&#039;s|&#x27;|&#183;|&#034;|&#821)";
-  String pReg = "[\\s,\\.,-]";
-  String p = "";
-  String w = ".";
 
-  public String cleanPhone(String str) {
-    String tmp = str;
-    String[] spl = tmp.replaceAll(pSep,"").split(pReg);
-
-    if(spl.length > 2) {
-      tmp = spl[spl.length-3] +p+ spl[spl.length-2] +p+ spl[spl.length-1];
-    } else if(spl.length > 1) {
-      tmp = spl[spl.length-2] +p+ spl[spl.length-1];
-    }
-
-    return tmp;
+  public String cleanAll(String str) {
+    return str.replaceAll("[^a-zA-Z0-9]", " ");
   }
 
   public String cleanWord(String str) {
-    return str.replaceAll("('|’|-|\\.|\u2019|&#39;|&#44;|&#x27;|&#45;|&#46;)","");
+    str = str.replaceAll("('|’|\\.|\u2019|&#39;|&#44;|&#x27;|&#46;)","");
+    return str.replaceAll("([^a-zA-Z0-9&#;]|&#45;)", " ");
   }
 
-  public String cleanHTML(String str) {
-      String tmp = str;
-      String[] spl = str.split("\\.");
+  public String cleanPhone(String str) {
+    String tmp = str;
+    String[] spl = tmp.split("[\\s,\\.,-]");
 
-      if(spl.length > 2) {
-          tmp = spl[spl.length-3]+w+spl[spl.length-2]+w+spl[spl.length-1];
-      } else {
-          tmp = spl[spl.length-2]+w+spl[spl.length-1];
-      }
+    if(spl.length > 2) {
+      tmp = spl[spl.length-3] +""+ spl[spl.length-2] +""+ spl[spl.length-1];
+    } else if(spl.length > 1) {
+      tmp = spl[spl.length-2] +""+ spl[spl.length-1];
+    }
 
-      return tmp;
+    tmp = tmp.replaceAll("[^0-9]", "");
+    return tmp;
+  }
+
+  public String cleanPrice() {
+    return null; // Still need to figure this out.
   }
 
 }
@@ -339,11 +331,13 @@ SKIP : {
 < IN_JSSQ > TOKEN : {
   < JSSQPRICE : <PRICE> | <PRICE2> >
 | < JSDOMSQ : <HTTPDOM> > {
-    //matchedToken.image = cleanHTML(matchedToken.image);
+    matchedToken.image = cleanAll(matchedToken.image);
   }
-| < JSEMAILSQ : <EMAIL> >
+| < JSEMAILSQ : <EMAIL> > {
+    matchedToken.image = cleanAll(matchedToken.image);
+}
 | < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+    matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < JSWORDSQ : <WORD> > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -363,11 +357,13 @@ SKIP : {
 < IN_JSDQ > TOKEN : {
   < JSDQPRICE : <PRICE> | <PRICE2> >
 | < JSDOMDQ : <HTTPDOM> > {
-    //matchedToken.image = cleanHTML(matchedToken.image);
+    matchedToken.image = cleanAll(matchedToken.image);
   }
-| < JSEMAILDQ : <EMAIL> >
+| < JSEMAILDQ : <EMAIL> > {
+    matchedToken.image = cleanAll(matchedToken.image);
+}
 | < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+    matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < JSWORDDQ : <WORD> > {
     matchedToken.image = cleanWord(matchedToken.image);
@@ -414,9 +410,11 @@ SKIP : {
 <IN_SQ> TOKEN : {
   < SQPRICE : <PRICE> | <PRICE2> >
 | < SQDOM : <HTTPDOM> > {
-    //matchedToken.image = cleanHTML(matchedToken.image);
+    matchedToken.image = cleanAll(matchedToken.image);
   }
-| < SQEMAIL : <EMAIL> >
+| < SQEMAIL : <EMAIL> > {
+    matchedToken.image = cleanAll(matchedToken.image);
+}
 | < SQWORD : (<WORD>|<CONT>) > {
     matchedToken.image = cleanWord(matchedToken.image);
   }
@@ -435,9 +433,11 @@ SKIP : {
 <IN_DQ> TOKEN : {
   < DQPRICE : <PRICE> | <PRICE2> >
 | < DQDOM : <HTTPDOM> > {
-    //matchedToken.image = cleanHTML(matchedToken.image);
+    matchedToken.image = cleanAll(matchedToken.image);
   }
-| < DQEMAIL : <EMAIL> >
+| < DQEMAIL : <EMAIL> > {
+    matchedToken.image = cleanAll(matchedToken.image);
+}
 | < DQWORD : (<WORD>|<CONT>) > {
     matchedToken.image = cleanWord(matchedToken.image);
   }
@@ -462,12 +462,11 @@ SKIP : {
 
 TOKEN : {
   < HTTPDOM : ( (["a"-"z","A"-"Z","0"-"9"]){1,2} ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z"]){1,2} )+ > {
-    //matchedToken.image = cleanHTML(matchedToken.image);
+      matchedToken.image = cleanAll(matchedToken.image);
   }
 | < EMAIL : ( (["a"-"z","A"-"Z","0"-"9"]|<EMAILSYM>){1,2} )+ ( (["a"-"z","A"-"Z","0"-"9","="]|<EMAILSYM>){1,2} )?
             "@" ( ( (["a"-"z","A"-"Z","0"-"9","-"]){1,2} )+(".") )+ ( (["a"-"z","A"-"Z","-"]){1,2} )+ > {
-    /*tmp = image.toString().split("\\.");
-    matchedToken.image = tmp[tmp.length-1];*/
+      matchedToken.image = cleanAll(matchedToken.image);
   }
 }
 
@@ -475,9 +474,11 @@ TOKEN : {
    DEFINITIONS OF CONSTRUCTIONS LIKE TIME, DATES, PRICES, AND PHONE NUMBERS
  ============================================================================================ */
 
+TOKEN : {
+    < YEAR : ( ["1","2"](["0"-"9"]){3} | (["0","9"]){2} ) >
+}
 SKIP : {
-  < YEAR : ( ["1","2"](["0"-"9"]){3} | (["0","9"]){2} ) >
-| < MONTH : (["0"-"1"])?["0"-"9"] >
+  < MONTH : (["0"-"1"])?["0"-"9"] >
 | < DAY : (["0"-"3"])?["0"-"9"] >
 }
 
@@ -524,18 +525,18 @@ TOKEN : {
   < PHSTASP > (["0"-"9"]){3,4} " " (["0"-"9"]){3,4} |
   < PHSTADS > (["0"-"9"]){3,4} "-" (["0"-"9"]){3,4} |
   < PHSTAPR > (["0"-"9"]){3,4} "." (["0"-"9"]){3,4} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+      matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < PHONE32 :
   < PHSTASP > (["0"-"9"]){2,3} " " (["0"-"9"]){2} " " (["0"-"9"]){2} |
   < PHSTADS > (["0"-"9"]){2,3} "-" (["0"-"9"]){2} "-" (["0"-"9"]){2} |
   < PHSTADS > (["0"-"9"]){2,3} "." (["0"-"9"]){2} "." (["0"-"9"]){2} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+      matchedToken.image = cleanPhone(matchedToken.image);
   }
 | < PHONE58 : ( < PHONEFI > (["0"-"9"]){1,2} " " )? ("(")?(["0"-"9"]){2,5}(")")? " " (["0"-"9"]){5,8} |
   ( < PHONEFI > (["0"-"9"]){1,2} "-" )? ("(")?(["0"-"9"]){2,5}(")")? "-" (["0"-"9"]){5,8} |
   ( < PHONEFI > (["0"-"9"]){1,2} "." )? ("(")?(["0"-"9"]){2,5}(")")? "." (["0"-"9"]){5,8} > {
-    //matchedToken.image = cleanPhone(matchedToken.image);
+      matchedToken.image = cleanPhone(matchedToken.image);
   }
 }
 
@@ -566,6 +567,7 @@ TOKEN : {
     matchedToken.image = cleanWord(matchedToken.image);
   }
 | < WORD : < ALPHA > ( < ALPHA > )+ >
+| < SIGNUM : (<NUMBER>){2,4} >
 }
 
 SKIP : {

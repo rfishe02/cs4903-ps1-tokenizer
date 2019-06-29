@@ -237,3 +237,38 @@ SKIP : {
  */
 
 | ("p"|"c")
+
+String pSep = "([\\(]|[\\)]|[+]|&#43;|&#45;|&#46;)";
+String sSep = "(&#39;|&#039;|&#39;s|&#039;s|&#x27;|&#183;|&#034;|&#821)";
+
+
+  public String cleanPhone(String str) {
+    String tmp = str;
+    String[] spl = tmp.split("[\\s,\\.,-]");
+
+    if(spl.length > 2) {
+      tmp = spl[spl.length-3] +p+ spl[spl.length-2] +p+ spl[spl.length-1];
+    } else if(spl.length > 1) {
+      tmp = spl[spl.length-2] +p+ spl[spl.length-1];
+    }
+
+    tmp = tmp.replaceAll("[^0-9]", "");
+    return tmp;
+  }
+
+  public String cleanWord(String str) {
+    return str.replaceAll("('|’|-|\\.|\u2019|&#39;|&#44;|&#x27;|&#45;|&#46;)","");
+  }
+
+  public String cleanHTML(String str) {
+      String tmp = str;
+      String[] spl = str.split("\\.");
+
+      if(spl.length > 2) {
+          tmp = spl[spl.length-3]+w+spl[spl.length-2]+w+spl[spl.length-1];
+      } else {
+          tmp = spl[spl.length-2]+w+spl[spl.length-1];
+      }
+
+      return tmp;
+  }
