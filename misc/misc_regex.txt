@@ -11,7 +11,7 @@
 < PRICE_STATE > TOKEN :
 {
  	< PRICE : (["0"-"9"])+ > : DEFAULT
-| 	< MISC2: ~[] > : DEFAULT 
+| 	< MISC2: ~[] > : DEFAULT
 }
 
 
@@ -31,7 +31,7 @@
 	  	}
 		image.delete(image.indexOf("<"),image.length()); // Probably not efficient.
 		wordEnd=image.length();
-  		
+
   	}
 
 |	< TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){1,24} > {
@@ -42,23 +42,23 @@
 		matchedToken.image = image.toString(); // If this word had odd punctuation, set the modfied image.
 
 		tagCt = false;
-		
+
 	  }
-	  
+
 	}
 
 	image.delete(wordEnd,image.length()); // Probably not efficient.
 
 	Need to address this case
 	<h2>Keyboard Shortcuts</h2>
-	<p> Keyboard 
+	<p> Keyboard
 
 	MORE :
 	{
-   	< OBS : (["a"-"z","A"-"Z"])+ (["<"]) > 
+   	< OBS : (["a"-"z","A"-"Z"])+ (["<"]) >
   	{
 	  System.out.println(image);
-  	  
+
 	  if(!tagCt) {
 	  	tagCt = true;
 	  }
@@ -74,26 +74,26 @@
 	< A : (">") > {
       image.delete(tagSt,image.length()); // Create a truncated word, without offending punctuation.
 	  } : DEFAULT
-| 	< C : ~[] > 
+| 	< C : ~[] >
 }
 
 TOKEN : {
     < REDDITU :  ["a"-"z"] (["/"]) (["a"-"z","A"-"Z","0"-"9"])+ > // Specifically for reddit, a popular platform. May need to revisit this.
 |	< USER : ("@"|"&#64;") (["a"-"z","A"-"Z","0"-"9"])+ >
-	
+
 -------------------------------*/
 
 
 /*
     < ERA : (["0"-"9"]){2,4}< CSEP >"s" > { matchedToken.image = matchedToken.image.replaceAll(cSep,""); }
     < COURSE : (["A"-"Z"]){2,4} (" ")? (["0"-"9"]){4} > { matchedToken.image = matchedToken.image.replaceAll(" ",""); }
-    
+
     type.equals("<COURSE>")|| type.equals("<ERA>")
 
     TOKEN : {
     < USER : "@" (["a"-"z","A"-"Z","0"-"9","_"])+ >
     }
-    
+
     < IN_PRE_TAG > TOKEN : {
         < CODETOK : ["A"-"Z"](["a"-"z","A"-"Z"])+ (" ."(["a"-"z","A"-"Z"])+ )? > {
             tmp = image.toString().split("\\.");
@@ -102,26 +102,26 @@ TOKEN : {
             }
         }
     }
-    
+
     SKIP : {
         < IP : ( ( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2} ) ){1} ( ["."]( "2"(["0"-"5"]){2}| "1"(["0"-"9"]){2}|(["0"-"9"]){1,2})){3} ("/" ( ("08"){1}| "16" | "2"(["4"-"9"]){1}|"32"))? >
     }
-      
+
     removed 6-14-19
     < TECH : ((["a"-"z","A"-"Z"])+(["0"-"9"])*){2,6} >
-    
+
     removed 6-14-19
     ("/"|"./") (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+","?","%","&","^"])+
     < FILE : "/" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
-    
+
     < FILE2 : "./" (["a"-"z","A"-"Z","0"-"9",".","-","_","=",";",":","+"," "])+ >
-    < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,6}";" > 
+    < SYMBOL : (["a"-"z","A"-"Z"])? "&"("#")? (["a"-"z","A"-"Z","0"-"9"]){2,6}";" >
  */
- 
+
 /* The tokenizer may pass through MORE once or twice. Eventually, the segment
  * will be classified as a WORD or NUMBER.
  */
- 
+
  /*
 MORE : {
   < CONT : <WORD> (< CSEP >|"-") >
@@ -129,25 +129,25 @@ MORE : {
 }*/
 
 // Deals with situations where terms are too close to tags.
-// (< CONT >)? 
+// (< CONT >)?
 
       if(tagCt) {
         matchedToken.image = image.toString(); // If this word had punctuation, return the modfied image.
         tagCt = false;
       }
-      
-      
+
+
 /* script type = "application/ld+json"{ "":"", }
  * "name" : [ "...
  * "text"
  * "title"
  */
- 
+
 
 /*
 
 Incomplete technique for dealing the information in JavaScript.
- 
+
 | < DOCWRITE : "document.write" (" ")* ["("] > : IN_DOC
 type.equals("<DOCSQWRD>") ||
 type.equals("<DOCDQWRD>")||
@@ -155,14 +155,14 @@ type.equals("<DOCDQWRD>")||
 < IN_SCRIPT_TAG > SKIP : {
   < ENDSCRIPTTAG : "<" (" ")*"/"(" ")* "script" > : DEFAULT
 | < INJSON : "json" > : IN_JSON
-| < SCRIPTTAGMISC : ~[] > 
+| < SCRIPTTAGMISC : ~[] >
 }
 
 <IN_DOC> SKIP : {
-  < ENDDOC : ");" > : IN_SCRIPT_TAG 
+  < ENDDOC : ");" > : IN_SCRIPT_TAG
 | < STDOCSQ : ["'"] > : IN_DOC_SQ
 | < SQDOCDQ : ["\""] > : IN_DOC_DQ
-| < DOCMISC : ~[] > 
+| < DOCMISC : ~[] >
 }
 
 // Deal with tags that used single quotes.
@@ -174,11 +174,11 @@ type.equals("<DOCDQWRD>")||
   < ENDDOCSQ : ["'"] > : IN_DOC
 | < DOCSQOT : ["<"] > : DOC_SQ_TAG
 | < DOCSQCT : < CLOSETAG > >
-| < DOCSQMISC : ~[] > 
+| < DOCSQMISC : ~[] >
 }
 <DOC_SQ_TAG> SKIP : {
   < ENDDOCSQTAG : [">"] > : IN_DOC_SQ
-| < DOCSQTGMISC : ~[] > 
+| < DOCSQTGMISC : ~[] >
 }
 
 // Deal with tags that used double quotes.
@@ -190,11 +190,11 @@ type.equals("<DOCDQWRD>")||
   < ENDDOCDQ : ["\""] > : IN_DOC
 | < DOCDQOT : ["<"] > : DOC_DQ_TAG
 | < DOCDQCT : < CLOSETAG > >
-| < DOCDQMISC : ~[] > 
+| < DOCDQMISC : ~[] >
 }
 <DOC_DQ_TAG> SKIP : {
   < ENDDOCDQTAG : [">"] > : IN_DOC_DQ
-| < DOCDQTGMISC : ~[] > 
+| < DOCDQTGMISC : ~[] >
 }
 */
 
@@ -202,14 +202,14 @@ type.equals("<DOCDQWRD>")||
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
 | < JSSQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
 | < JSDQ : ("description"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
-| < JSMISC : ~[] > 
+| < JSMISC : ~[] >
 }
 
 /*
  * | < JSCMT : "/*" > : INJS_CMT
 < INJS_CMT > SKIP : {
-  < ENDJSCMT : "/" > : IN_JS 
-| < JSCMTMISC : ~[] > 
+  < ENDJSCMT : "/" > : IN_JS
+| < JSCMTMISC : ~[] >
 }
 */
 
@@ -226,3 +226,14 @@ SKIP : {
   < ENDSPATTR : "\"" > : DEFAULT
 | < HTMLATTRMISC1 : ~[] >
 }*/
+
+// type="application/json+oembed"
+//< SCRIPTTAG :  "<" (" ")*("script"|"SCRIPT")(" ")* "type="(" ")*["\"","'"](" ")* ((["a"-"z","/","+"])+)?("json"|"javascript")((["a"-"z","/","+"])+)? (" ")*["\"","'"] > : IN_JS
+
+
+/*
+ * "content"
+ * "title"
+ */
+
+| ("p"|"c")
