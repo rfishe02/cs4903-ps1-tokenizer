@@ -167,9 +167,10 @@ public class UATokenizer {
                   type.equals("<CROWDED2>")||type.equals("<BREV>")    ||type.equals("<SQWORD>")   || 
                   type.equals("<DQWORD>")  ||type.equals("<JSWORDSQ>")||type.equals("<JSWORDDQ>")) {
             
+            /*
             if(fmt.length() > 8) {
                 fmt = fmt.substring(0,9); // Reduce the size of the word to a length of 9.
-            }
+            }*/
             
             bw[4].write(fmt+"\n");
             count[5]++;
@@ -363,7 +364,9 @@ SKIP : {
 }
 < IN_JSSQ > TOKEN : {
   < JSDOMSQ : <HTTPDOM> > {
+      
     matchedToken.image = cleanHTML(matchedToken.image);
+    
   }
 | < JSEMAILSQ : <EMAIL> >
 | < JSPHONESQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
@@ -372,7 +375,9 @@ SKIP : {
     
   }
 | < JSWORDSQ : <WORD> > {
+    
     matchedToken.image = cleanWord(matchedToken.image);  
+    
   }
 }
 
@@ -386,7 +391,9 @@ SKIP : {
 }
 < IN_JSDQ > TOKEN : {
   < JSDOMDQ : <HTTPDOM> > {
+      
     matchedToken.image = cleanHTML(matchedToken.image);
+    
   }
 | < JSEMAILDQ : <EMAIL> >
 | < JSPHONEDQ : (<PHONE34> | <PHONE32> | <PHONE58>) > {
@@ -395,7 +402,9 @@ SKIP : {
     
   }
 | < JSWORDDQ : <WORD> > {
+    
     matchedToken.image = cleanWord(matchedToken.image);  
+    
   }
 }
 
@@ -443,11 +452,15 @@ SKIP : {
 }
 <IN_SQ> TOKEN : {
   < SQDOM : <HTTPDOM> > {
+      
     matchedToken.image = cleanHTML(matchedToken.image);
+    
   }
 | < SQEMAIL : <EMAIL> >
 | < SQWORD : (<WORD>|<CONT>) > {
+    
     matchedToken.image = cleanWord(matchedToken.image);  
+    
   }
 }
 
@@ -461,11 +474,15 @@ SKIP : {
 }
 <IN_DQ> TOKEN : {
   < DQDOM : <HTTPDOM> > {
+      
     matchedToken.image = cleanHTML(matchedToken.image);
+    
   }
 | < DQEMAIL : <EMAIL> >
 | < DQWORD : (<WORD>|<CONT>) > {
+    
     matchedToken.image = cleanWord(matchedToken.image);  
+    
   }
 }
 
@@ -518,7 +535,7 @@ SKIP : {
 
 TOKEN : {
   < PRICE : (["$","€","¥","£","元","₩","₺","₽","₹","R"]|("&83"(["0"-"9"]){2}";")|("Fr"|"kr"))(" ")* 
-           ( (["0"-"9"]){1,3}(",")? )+ ( [".",","](["0"-"9"])+ )? > // Need to add unicode & html symb?
+            ( (["0"-"9"]){1,3}(",")? )+ ( [".",","](["0"-"9"])+ )? > // Need to add unicode & html symb?
 | < PRICE2 : ( (["0"-"9"]){1,3}(",")? )+ ( [".",","](["0"-"9"])+ )?(" ")* 
             (  ("dollar"|"euro"|"yen"|"pound"|"franc"|"krona"|"peso"|"krone"|"won"|"lira"|"ruble"|"rupee"|"read"|"rand"|"bitcoin")("s")? | 
                ("USD"|"EUR"|"JPY"|"GBP"|"AUD"|"CAD"|"CHF"|"CNY"|"SEK"|"NZD"|"MXN"|"SGD"|"HKD"|"NOK"|"KRW"|"TRY"|"RUB"|"INR"|"BRL"|"ZAR") 
