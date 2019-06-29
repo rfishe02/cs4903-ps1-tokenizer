@@ -135,13 +135,14 @@ public class UATokenizer {
   public static void recordToken(BufferedWriter[] bw, BufferedWriter bw2, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
-      //String fmt = t.image.toLowerCase();
-      String fmt = t.image.toLowerCase()+" "+type;
+      String fmt = t.image.toLowerCase();
+      //String fmt = t.image.toLowerCase()+" "+type;
 
-      bw2.write(fmt+"\n");
-      count[0]++; // Count number of tokens processed.
+      if(t.image.length() > 2) {
 
-      if(fmt.length() > 2) {
+        bw2.write(fmt+"\n");
+        count[0]++; // Count number of tokens processed.
+
         if(type.equals("<EMAIL>")    ||type.equals("<DQEMAIL>")   ||type.equals("<SQEMAIL>")||
            type.equals("<JSEMAILSQ>")||type.equals("<JSEMAILDQ>")) {
 
