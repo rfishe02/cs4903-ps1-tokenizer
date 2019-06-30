@@ -279,13 +279,13 @@ SKIP : {
 
 SKIP : {
   < SCRIPTTAG2 :  "<" (" ")*("script"|"SCRIPT")(" ")* > : IN_SCRIPT
-| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME")(" ")* > : IN_SP_TAG
+| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"noscript"|"NOSCRIPT")(" ")* > : IN_SP_TAG
 | < PRETAG :  "<" (" ")*("pre"|"PRE"|"code"|"CODE")(" ")* > : IN_CODE_TAG
 | < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 }
 
 < IN_SP_TAG > SKIP : {
-  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME") > : DEFAULT
+  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"noscript"|"NOSCRIPT") > : DEFAULT
 | < SPCMT : "/*" > : SP_CMT
 | < SPTAGMISC : ~[] >
 }
@@ -320,12 +320,12 @@ SKIP : {
 | < JSSQ : (
             "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
             |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"
+            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
            ) (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
 | < JSDQ : (
             "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
             |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"
+            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
            ) (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
@@ -506,8 +506,10 @@ TOKEN : {
 }
 
 SKIP : {
-  < HTTPLNKSQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"\""){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
-| < HTTPLNKDQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"'"){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+  < HTTPLNKSQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"\""){1,2} )+
+  ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+| < HTTPLNKDQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"'"){1,2} )+
+  ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
 }
 
 /* ============================================================================================
