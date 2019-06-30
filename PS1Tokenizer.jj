@@ -259,8 +259,8 @@ SKIP : {
   < SPACE : (" "|"\t"|"&#160;")+ >
 | < NEWLINE : ("\r"|"\n")+ >
 | < CSEP : ("'"|"’"|"\u2019"|"â€™"|"&#x27;"|"&#" (["3"-"4"]){2} ";") > // Contraction seperator.
-| < HTTPSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"] >
-| < LINKSYM : [",","-","_",":","+","^","%","#","=","@","~","[","]","$","(",")","*"," "]>
+| < HTTPSYM : [",","-","_",":",";","+","^","%","#","=","@","~","[","]","$","(",")","*"] >
+| < LINKSYM : [",","-","_",":",";","+","^","%","#","=","@","~","[","]","$","(",")","*"," "]>
 | < EMAILSYM : ["!","#","$","%","^","&","*","_","+","=","-"] >
 }
 
@@ -281,13 +281,13 @@ SKIP : {
 
 SKIP : {
   < SCRIPTTAG2 :  "<" (" ")*("script"|"SCRIPT")(" ")* > : IN_SCRIPT
-| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"form"|"FORM")(" ")* > : IN_SP_TAG
+| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME")(" ")* > : IN_SP_TAG
 | < PRETAG :  "<" (" ")*("pre"|"PRE"|"code"|"CODE")(" ")* > : IN_CODE_TAG
 | < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 }
 
 < IN_SP_TAG > SKIP : {
-  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"form"|"FORM") > : DEFAULT
+  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME") > : DEFAULT
 | < SPCMT : "/*" > : SP_CMT
 | < SPTAGMISC : ~[] >
 }
@@ -313,19 +313,21 @@ SKIP : {
    When we enter a script tag, use different tokenization techniques depending on the type.
  -------------------------------------------------------------------------------------------- */
 
+// "header", "company"
+
 < IN_SCRIPT > SKIP : {
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
 | < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
 | < SCRIPTCMT : "/*" > : IN_SC_CMT
 | < JSSQ : (
             "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
-            |"keywords"|"brand"|"domain"|"email"|"alt"|"header"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"
+            |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"
            ) (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
 | < JSDQ : (
             "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
-            |"keywords"|"brand"|"domain"|"email"|"alt"|"header"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"
+            |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"
            ) (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
@@ -393,10 +395,9 @@ SKIP : {
 /* ============================================================================================
    Skip the contents of HTML attributes that may contain unhelpful information, such
    as style definitions.
-
-   These unintentionally create a small amount of garbage, especially the
-   one meant to find HTML links.
  ============================================================================================ */
+
+// text, category, label
 
 SKIP : {
   < CMTTAG : "<" (" ")*"!"(" ")* > : IN_CMT_TAG
@@ -408,10 +409,11 @@ SKIP : {
   < ENDCMTTAG : "-"(" ")*">" > : DEFAULT
 | < CMTMISC : ~[] >
 }
+
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"title"|"content"|"href") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"title"|"content"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"title"|"content"|"href"|"url"|"price") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"title"|"content"|"href"|"url"|"price") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -419,6 +421,7 @@ SKIP : {
 
 <IN_SQ> SKIP : {
   < ENDSQ : ("'") > : IN_OPEN_TAG
+| < JSFUNCTIONSQ : "javascript" (" ")* ":" > : IN_JSFUNCTSQ
 | < SQDATE : <YMD> | <MDY> | <DMY> >
 | < SQIP : <IP> >
 | < SQJNK : <HTTPJNKSQ> >
@@ -440,8 +443,14 @@ SKIP : {
   }
 }
 
+<IN_JSFUNCTSQ> SKIP : {
+  < EXITJSFUNCTSQ : ")" > : IN_SQ
+| < JSFUNCTSQMISC : ~[] >
+}
+
 <IN_DQ> SKIP : {
   < ENDDQ : ("\"") > : IN_OPEN_TAG
+| < JSFUNCTIONDQ : "javascript" (" ")* ":" > : IN_JSFUNCTDQ
 | < DQDATE : <YMD> | <MDY> | <DMY> >
 | < DQIP : <IP> >
 | < DQJNK : <HTTPJNKDQ> >
@@ -463,15 +472,20 @@ SKIP : {
   }
 }
 
+<IN_JSFUNCTDQ> SKIP : {
+  < EXITJSFUNCTDQ : ")" > : IN_DQ
+| < JSFUNCTDQMISC : ~[] >
+}
+
 /* ============================================================================================
    Skip parts of the url that may contribute more garbage than relevant information.
  ============================================================================================ */
 
 SKIP : {
-  < HTTPJNKSQ : ["&","?",";"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"\""){1,2} )+ ( <HTTPDOM> )?  >
-| < HTTPJNKDQ : ["&","?",";"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"'"){1,2} )+ ( <HTTPDOM> )?  >
-| < HTTPLNKSQ : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"\""){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
-| < HTTPLNKDQ : "/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"'"){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+  < HTTPJNKSQ : ["&","?"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"\""){1,2} )+ ( <HTTPDOM> )?  >
+| < HTTPJNKDQ : ["&","?"] ( (["a"-"z","A"-"Z","0"-"9"]|<HTTPSYM>|"'"){1,2} )+ ( <HTTPDOM> )?  >
+| < HTTPLNKSQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"\""){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
+| < HTTPLNKDQ : ("\\")?"/" ( (["a"-"z","A"-"Z","0"-"9"]|<LINKSYM>|"'"){1,2} )+ ( <HTTPDOM> | "."("html"|"php"|"jsp"|"png"|"jpeg"|"jpg"|"css"|"xml") )? >
 | < HTTP : (["a"-"z"])+"://" >
 | < PORT : ":"(["0"-"9"]){4,8} >
 }
