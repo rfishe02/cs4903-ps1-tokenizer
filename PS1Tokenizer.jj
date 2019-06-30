@@ -135,8 +135,8 @@ public class UATokenizer {
   public static void recordToken(BufferedWriter[] bw, BufferedWriter bw2, Token t, int[] count) {
     try {
       String type = UATokenizer.tokenImage[t.kind];
-      //String fmt = t.image.toLowerCase();
-      String fmt = t.image.toLowerCase()+" "+type;
+      String fmt = t.image.toLowerCase();
+      //String fmt = t.image.toLowerCase()+" "+type;
 
       if(t.image.length() > 2) {
 
