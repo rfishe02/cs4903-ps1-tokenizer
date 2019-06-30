@@ -214,7 +214,24 @@ TOKEN_MGR_DECLS : {
     str = str.replaceAll("('|’|\\.|\u2019|&#39;|&#44;|&#x27;|&#46;|&#039;|&#044;|&#0x27;|&#046;)","");
 
     if(str.contains("&")) {
-      // Need to handle HTML accent letters.
+      if(str.containsIgnoreCase("&a|&A")) {
+        str = str.replaceAll("&(.){6};","a");
+      }
+      if(str.containsIgnoreCase("&e|&E")) {
+        str = str.replaceAll("&(.){6};","e");
+      }
+      if(str.containsIgnoreCase("&i|&I")) {
+        str = str.replaceAll("&(.){6};","i");
+      }
+      if(str.containsIgnoreCase("&o|&O")) {
+        str = str.replaceAll("&(.){6};","o");
+      }
+      if(str.containsIgnoreCase("&u|&U")) {
+        str = str.replaceAll("&(.){6};","u");
+      }
+      if(str.containsIgnoreCase("&y|&Y")) {
+        str = str.replaceAll("&(.){6};","y");
+      }
     }
 
     return str.replaceAll("([^a-zA-Z0-9&#;]|&#45;|&#045;)", " ");
