@@ -211,9 +211,21 @@ TOKEN_MGR_DECLS : {
   String[] tmp;
 
   public String cleanWord(String str) {
-    str = str.replaceAll("('|’|\\.|\u2019|&#39;|&#44;|&#x27;|&#46;)","");
-    return str.replaceAll("([^a-zA-Z0-9&#;]|&#45;)", " ");
+    str = str.replaceAll("('|’|\\.|\u2019|&#39;|&#44;|&#x27;|&#46;|&#039;|&#044;|&#0x27;|&#046;)","");
+
+    if(str.contains("&")) {
+      // Need to handle HTML accent letters.
+    }
+
+    return str.replaceAll("([^a-zA-Z0-9&#;]|&#45;|&#045;)", " ");
   }
+
+  /*
+  < ENGSYMB : "&" ( "#" (["0"-"9"]){1} ( (["0"-"9"]){1} | ((["0"-"5"]){1}|(["7"-"9"]){1}) (["0"-"9"]){1} )
+    | (["a","A","e","E","i","I","o","O","u","U","n","N"]|"sz"|"ord")
+      ("acute"|"cedil"|"circ"|"grave"|"lig"|"slash"|"tilde"|"uml"|"ring"|["f","m"])
+    | ("middot"|"eth"|"ETH"|"thorn"|"THORN") ) ";" >
+  */
 
   public String cleanHTML(String str) {
     return str.replaceAll("[\\.]", " ");
@@ -273,13 +285,13 @@ SKIP : {
 
 SKIP : {
   < SCRIPTTAG2 :  "<" (" ")*("script"|"SCRIPT")(" ")* > : IN_SCRIPT
-| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"noscript"|"NOSCRIPT"|"time"|"TIME")(" ")* > : IN_SP_TAG
+| < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"form"|"FORM")(" ")* > : IN_SP_TAG
 | < PRETAG :  "<" (" ")*("pre"|"PRE"|"code"|"CODE")(" ")* > : IN_CODE_TAG
 | < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
 }
 
 < IN_SP_TAG > SKIP : {
-  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"noscript"|"NOSCRIPT"|"time"|"TIME") > : DEFAULT
+  < ENDATAG : "<" (" ")*"/"(" ")* ("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"form"|"FORM") > : DEFAULT
 | < SPCMT : "/*" > : SP_CMT
 | < SPTAGMISC : ~[] >
 }
@@ -309,8 +321,16 @@ SKIP : {
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
 | < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
 | < SCRIPTCMT : "/*" > : IN_SC_CMT
-| < JSSQ : ("description"|"title"|"headline"|"name"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
-| < JSDQ : ("description"|"title"|"headline"|"name"|"email"|"url"|"href"|("tele")?"phone"|"alt") (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
+| < JSSQ : (
+            "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+            |"keywords"|"brand"|"domain"|"email"|"alt"|"header"|"vendor"|("tele")?"phone"
+            |"alias"|"headline"|"tag"|"subtitle"
+           ) (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
+| < JSDQ : (
+            "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+            |"keywords"|"brand"|"domain"|"email"|"alt"|"header"|"vendor"|("tele")?"phone"
+            |"alias"|"headline"|"tag"|"subtitle"
+           ) (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
 < IN_DOC_WRITE > SKIP : {
@@ -394,8 +414,8 @@ SKIP : {
 }
 < IN_OPEN_TAG > SKIP : {
   < ENDOPTAG : (">") > : DEFAULT
-| < SQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "'" > : IN_SQ
-| < DQATTR : ("alt"|"title"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
+| < SQATTR : ("alt"|"title"|"content"|"href") (" ")*"="(" ")* "'" > : IN_SQ
+| < DQATTR : ("alt"|"title"|"content"|"href") (" ")*"="(" ")* "\"" > : IN_DQ
 | < OPENMISC : ~[] >
 }
 
@@ -564,7 +584,7 @@ TOKEN : {
  -------------------------------------------------------------------------------------------- */
 
 TOKEN : {
-  < BREV : ( < ALPHA > ( "&#46;" | ["0"-"9","."] ) )+ < ALPHA > ( "&#46;" | ["0"-"9","."] ) > {
+  < BREV : ( < ALPHA > ( "&#46;" | "&#046;" | ["0"-"9","."] ) )+ < ALPHA > ( "&#46;" | "&#046;" | ["0"-"9","."] ) > {
     matchedToken.image = cleanWord(matchedToken.image);
   }
 | < CONT : ( < ALPHA > )+ ( < ENGSYMB > | < CSEP > | "-" ) ( < ALPHA > )+ > {
