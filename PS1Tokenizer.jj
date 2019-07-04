@@ -281,7 +281,8 @@ SKIP : {
   < SCRIPTTAG2 :  "<" (" ")*("script"|"SCRIPT")(" ")* > : IN_SCRIPT
 | < SPTAG : "<" (" ")*("style"|"STYLE"|"button"|"BUTTON"|"time"|"TIME"|"noscript"|"NOSCRIPT")(" ")* > : IN_SP_TAG
 | < PRETAG :  "<" (" ")*("pre"|"PRE"|"code"|"CODE")(" ")* > : IN_CODE_TAG
-| < PHP : "<" (" ")*"?php"(" ")* > : IN_PHP
+| < CMTTAG : "<" (" ")*"!"(" ")* > : IN_CMT_TAG
+| < PHP : "<" (" ")*"?"(" ")*"php"(" ")* > : IN_PHP
 }
 
 < IN_SP_TAG > SKIP : {
@@ -293,10 +294,16 @@ SKIP : {
   < ENDSPCMT : "*/" > : IN_SP_TAG
 | < SPCMTMISC : ~[] >
 }
+< IN_CMT_TAG > SKIP : {
+  < ENDCMTTAG : ("-")?(" ")*">" > : DEFAULT
+| < CMTMISC : ~[] >
+}
+
 < IN_CODE_TAG > SKIP : {
   < ENDPRETAG : "<" (" ")*"/"(" ")* ("pre"|"PRE"|"code"|"CODE") > : DEFAULT
 | < PREMISC : ~[] >
 }
+
 < IN_PHP > SKIP : {
   < ENDPHP : "?"(" ")*">" > : DEFAULT
 | < PHPCMT : "/*" > : PHP_CMT
@@ -315,31 +322,25 @@ SKIP : {
 
 < IN_SCRIPT > SKIP : {
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
-| < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
 | < SCRIPTCMT : "/*" > : IN_SC_CMT
-| < JSSQ : (
-            "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
-            |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
-           ) (" ")*"'"(" ")*":"(" ")*"'" > : IN_JSSQ
-| < JSDQ : (
-            "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
-            |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
-            |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
-           ) (" ")*"\""(" ")*":"(" ")*"\"" > : IN_JSDQ
+| < JSSQ : "'" > : IN_JSSQ
+| < JSDQ : "\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
-< IN_DOC_WRITE > SKIP : {
-  < ENDDOCWRITE : ")"(" ")*";" > : IN_SCRIPT
-| < DOCWRITEMISC : ~[] >
-}
+
 < IN_SC_CMT > SKIP : {
   < ENDSCCMT : "*/" > : IN_SCRIPT
 | < SCCMTMISC : ~[] >
 }
 
+/* --------------------------------------------------------------------------------------------
+   Collect the information within quotation marks.
+ -------------------------------------------------------------------------------------------- */
+
 < IN_JSSQ > SKIP : {
   < ENDJSSQ : "'" > : IN_SCRIPT
+| < JSSQOT : <OPENTAG> > : IN_JSSQOPEN_TAG
+| < JSSQCT : <CLOSETAG> >
 | < JSSQDATE : <YMD> | <MDY> | <DMY> >
 | < JSSQIP : <IP> >
 | < JSSQHTTP : <HTTP> >
@@ -366,8 +367,15 @@ SKIP : {
   < JSSQLNK : <HTTPLNKSQ> >
 }
 
+< IN_JSSQOPEN_TAG > SKIP : {
+  < ENDJSSQOPTAG : (">") > : IN_JSSQ
+| < JSSQOPENMISC : ~[] >
+}
+
 < IN_JSDQ > SKIP : {
   < ENDJSDQ : "\"" > : IN_SCRIPT
+| < JSDQOT : <OPENTAG> > : IN_JSDQOPEN_TAG
+| < JSDQCT : <CLOSETAG> >
 | < JSDQDATE : <YMD> | <MDY> | <DMY> >
 | < JSDQIP : <IP> >
 | < JSDQHTTP : <HTTP> >
@@ -394,6 +402,11 @@ SKIP : {
   < JSDQLNK : <HTTPLNKDQ> >
 }
 
+< IN_JSDQOPEN_TAG > SKIP : {
+  < ENDJSDQOPTAG : (">") > : IN_JSDQ
+| < JSDQOPENMISC : ~[] >
+}
+
 /* ============================================================================================
    Skip the contents of HTML attributes that may contain unhelpful information, such
    as style definitions.
@@ -402,14 +415,9 @@ SKIP : {
 // text, category, label
 
 SKIP : {
-  < CMTTAG : "<" (" ")*"!"(" ")* > : IN_CMT_TAG
-| < OPENTAG : "<" (" ")*( (["a"-"z","A"-"Z","0"-"9","-"])+ )(" ")* > : IN_OPEN_TAG
+  < OPENTAG : "<" (" ")*( (["a"-"z","A"-"Z","0"-"9","-"])+ )(" ")* > : IN_OPEN_TAG
 | < CLOSETAG : "<" (" ")* ( "/"(" ")*(["a"-"z","A"-"Z","0"-"9","-"])+
                | (["a"-"z","A"-"Z","0"-"9","-"])+ (" ")*"/" ) (" ")* >
-}
-< IN_CMT_TAG > SKIP : {
-  < ENDCMTTAG : "-"(" ")*">" > : DEFAULT
-| < CMTMISC : ~[] >
 }
 
 < IN_OPEN_TAG > SKIP : {

@@ -272,3 +272,21 @@ String sSep = "(&#39;|&#039;|&#39;s|&#039;s|&#x27;|&#183;|&#034;|&#821)";
 
       return tmp;
   }
+
+
+     | < DOCWRITE : "document.write"(" ")*"(" > :IN_DOC_WRITE
+     < IN_DOC_WRITE > SKIP : {
+       < ENDDOCWRITE : ")"(" ")*";" > : IN_SCRIPT
+     | < DOCWRITEMISC : ~[] >
+     }
+
+     (
+        "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+        |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+        |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
+      ) (" ")*"'"(" ")*":"(" ")*
+    (
+        "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+        |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+        |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
+    ) (" ")*"\""(" ")*":"(" ")*
