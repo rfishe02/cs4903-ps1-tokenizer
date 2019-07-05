@@ -263,12 +263,7 @@ SKIP : {
 }
 
 SKIP : {
-  < ENGSYMB : "&" ( "#" (["0"-"9"]){1} ( (["0"-"9"]){1} | ((["0"-"5"]){1}|(["7"-"9"]){1}) (["0"-"9"]){1} )
-    | (["a","A","e","E","i","I","o","O","u","U","n","N"]|"sz"|"ord")
-      ("acute"|"cedil"|"circ"|"grave"|"lig"|"slash"|"tilde"|"uml"|"ring"|["f","m"])
-    | ("middot"|"eth"|"ETH"|"thorn"|"THORN") ) ";" >
-| < SYMBOL : "&" ("#")?(["a"-"z","0"-"9"]){2,12} ";" >
-| < ALPHA : (["a"-"z","A"-"Z"] | ("\\u00"["4"-"7"]["0"-"9","A"-"F"]) | ("\\u00"["A"-"F"]["0"-"9","A"-"F"]) ) >
+  < ALPHA : (["a"-"z","A"-"Z"] | ("\\u00"["4"-"7"]["0"-"9","A"-"F"]) | ("\\u00"["A"-"F"]["0"-"9","A"-"F"]) ) >
 }
 
 /* ============================================================================================
@@ -323,8 +318,18 @@ SKIP : {
 < IN_SCRIPT > SKIP : {
   < ENDJS : "<" (" ")*"/"(" ")* ("script"|"SCRIPT") > : DEFAULT
 | < SCRIPTCMT : "/*" > : IN_SC_CMT
-| < JSSQ : "'" > : IN_JSSQ
-| < JSDQ : "\"" > : IN_JSDQ
+| < JSSQ :
+(
+  "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+  |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+  |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
+) (" ")*":"(" ")*"'"(" ")*"'" > : IN_JSSQ
+| < JSDQ :
+(
+  "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
+  |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
+  |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
+) (" ")*":"(" ")*"\""(" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
 
@@ -338,7 +343,7 @@ SKIP : {
  -------------------------------------------------------------------------------------------- */
 
 < IN_JSSQ > SKIP : {
-  < ENDJSSQ : "'" > : IN_SCRIPT
+  < ENDJSSQ : "'"(" ")*"," > : IN_SCRIPT
 | < JSSQOT : <OPENTAG> > : IN_JSSQOPEN_TAG
 | < JSSQCT : <CLOSETAG> >
 | < JSSQDATE : <YMD> | <MDY> | <DMY> >
@@ -373,7 +378,7 @@ SKIP : {
 }
 
 < IN_JSDQ > SKIP : {
-  < ENDJSDQ : "\"" > : IN_SCRIPT
+  < ENDJSDQ : "\""(" ")*"," > : IN_SCRIPT
 | < JSDQOT : <OPENTAG> > : IN_JSDQOPEN_TAG
 | < JSDQCT : <CLOSETAG> >
 | < JSDQDATE : <YMD> | <MDY> | <DMY> >
@@ -617,7 +622,16 @@ TOKEN : {
     matchedToken.image = cleanWord(matchedToken.image);
   }
 | < WORD : < ALPHA > ( < ALPHA > )+ >
+
 | < SIGNUM : (<NUMBER>){2,4} >
+}
+
+SKIP : {
+  < ENGSYMB : "&" ( "#" (["0"-"9"]){1} ( (["0"-"9"]){1} | ((["0"-"5"]){1}|(["7"-"9"]){1}) (["0"-"9"]){1} )
+    | (["a","A","e","E","i","I","o","O","u","U","n","N"]|"sz"|"ord")
+      ("acute"|"cedil"|"circ"|"grave"|"lig"|"slash"|"tilde"|"uml"|"ring"|["f","m"])
+    | ("middot"|"eth"|"ETH"|"thorn"|"THORN") ) ";" >
+| < SYMBOL : "&" ("#")?(["a"-"z","0"-"9"]){2,12} ";" >
 }
 
 SKIP : {
