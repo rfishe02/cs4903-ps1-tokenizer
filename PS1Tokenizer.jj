@@ -323,13 +323,13 @@ SKIP : {
   "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
   |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
   |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
-) (" ")*":"(" ")*"'"(" ")*"'" > : IN_JSSQ
+) (" ")*"'" (" ")*":" (" ")*"'" > : IN_JSSQ
 | < JSDQ :
 (
   "name"|"url"|"title"|"desc"("ription")?|"text"|"caption"|"category"|"href"|"price"
   |"keyword"("s")?|"brand"|"domain"|"email"|"alt"|"vendor"|("tele")?"phone"
   |"alias"|"headline"|"tag"|"subtitle"|"excerpt"|"company"|"address"
-) (" ")*":"(" ")*"\""(" ")*"\"" > : IN_JSDQ
+) (" ")*"\"" (" ")*":" (" ")*"\"" > : IN_JSDQ
 | < SCRIPTTAGMISC : ~[] >
 }
 
