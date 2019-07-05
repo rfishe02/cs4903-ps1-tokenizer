@@ -343,7 +343,7 @@ SKIP : {
  -------------------------------------------------------------------------------------------- */
 
 < IN_JSSQ > SKIP : {
-  < ENDJSSQ : "'"(" ")*"," > : IN_SCRIPT
+  < ENDJSSQ : "'" > : IN_SCRIPT
 | < JSSQDATE : <YMD> | <MDY> | <DMY> >
 | < JSSQIP : <IP> >
 | < JSSQHTTP : <HTTP> >
@@ -381,7 +381,7 @@ SKIP : {
 */
 
 < IN_JSDQ > SKIP : {
-  < ENDJSDQ : "\""(" ")*"," > : IN_SCRIPT
+  < ENDJSDQ : "\"" > : IN_SCRIPT
 | < JSDQDATE : <YMD> | <MDY> | <DMY> >
 | < JSDQIP : <IP> >
 | < JSDQHTTP : <HTTP> >
@@ -407,7 +407,6 @@ SKIP : {
 < IN_JSDQ > SKIP : {
   < JSDQLNK : <HTTPLNKDQ> >
 }
-
 
 /* ============================================================================================
    Skip the contents of HTML attributes that may contain unhelpful information, such
