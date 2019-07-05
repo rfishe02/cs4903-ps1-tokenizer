@@ -344,8 +344,6 @@ SKIP : {
 
 < IN_JSSQ > SKIP : {
   < ENDJSSQ : "'"(" ")*"," > : IN_SCRIPT
-| < JSSQOT : <OPENTAG> > : IN_JSSQOPEN_TAG
-| < JSSQCT : <CLOSETAG> >
 | < JSSQDATE : <YMD> | <MDY> | <DMY> >
 | < JSSQIP : <IP> >
 | < JSSQHTTP : <HTTP> >
@@ -372,15 +370,18 @@ SKIP : {
   < JSSQLNK : <HTTPLNKSQ> >
 }
 
-< IN_JSSQOPEN_TAG > SKIP : {
-  < ENDJSSQOPTAG : (">") > : IN_JSSQ
-| < JSSQOPENMISC : ~[] >
+/*
+| < JSDQOT : <OPENTAG> > : IN_JSDQOPEN_TAG
+| < JSDQCT : <CLOSETAG> >
+
+< IN_JSDQOPEN_TAG > SKIP : {
+  < ENDJSDQOPTAG : (">") > : IN_JSDQ
+| < JSDQOPENMISC : ~[] >
 }
+*/
 
 < IN_JSDQ > SKIP : {
   < ENDJSDQ : "\""(" ")*"," > : IN_SCRIPT
-| < JSDQOT : <OPENTAG> > : IN_JSDQOPEN_TAG
-| < JSDQCT : <CLOSETAG> >
 | < JSDQDATE : <YMD> | <MDY> | <DMY> >
 | < JSDQIP : <IP> >
 | < JSDQHTTP : <HTTP> >
@@ -407,10 +408,6 @@ SKIP : {
   < JSDQLNK : <HTTPLNKDQ> >
 }
 
-< IN_JSDQOPEN_TAG > SKIP : {
-  < ENDJSDQOPTAG : (">") > : IN_JSDQ
-| < JSDQOPENMISC : ~[] >
-}
 
 /* ============================================================================================
    Skip the contents of HTML attributes that may contain unhelpful information, such
