@@ -214,9 +214,10 @@ TOKEN_MGR_DECLS : {
 
     str = str.replaceAll("['’\\.\u2019]|(&#(0)?(39|46|x27|14[56]|18[36]);)",""); // Remove all punctuation.
 
-    str = str.replaceAll("&([aAeEiIoOuU]([a-z]){3,6}|#[1234]([0-9]){2});","&"); // Need a better way to resolve accented characters.
-
-    str = str.replaceAll("(&#(0)?([3-9]){2};)|[-]"," "); // Replace non-punctuation with a space (may reconsider this).
+    if(str.contains("&")) {
+      str = str.replaceAll("&([aAeEiIoOuU]([a-z]){3,6}|#[1234]([0-9]){2});","?"); // Substitute accented characters with a '?'.
+      str = str.replaceAll("&#(0)?([3-9]){2};"," "); // Replace certain non-punctuation with a space.
+    }
 
     return str;
   }
